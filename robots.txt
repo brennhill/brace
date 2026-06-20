@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://braceframework.org/sitemap.xml

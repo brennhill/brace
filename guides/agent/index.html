@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Identity &amp; attribution — BRACE Agent guide</title>
+<meta name="description" content="A practical guide to agent identity and attribution: give the agent its own identity, stamp the six required fields on every action, make the agent-type-id a content hash, and track parent-child lineage. With reasons and illustrations.">
+<link rel="canonical" href="https://braceframework.org/guides/agent/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="BRACE Framework">
+<meta property="og:title" content="Identity &amp; attribution — the BRACE Agent guide">
+<meta property="og:description" content="When an agent does something it shouldn't, can you tell which agent — running which build, on whose behalf — did it? The six identity fields and the content-hashed agent-type-id.">
+<meta property="og:url" content="https://braceframework.org/guides/agent/">
+<meta property="og:image" content="https://braceframework.org/og-agent.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="BRACE Agent identity and attribution guide">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Identity &amp; attribution — the BRACE Agent guide">
+<meta name="twitter:description" content="Which agent, running what build, did that? Principles, reasons, and illustrations.">
+<meta name="twitter:image" content="https://braceframework.org/og-agent.png">
+<style>
+  :root{
+    --ink:#1a1a1a; --muted:#555a63; --primary:#1a4d6e; --accent:#2e8bc0;
+    --tint:#eef5fc; --tint2:#dde9f3; --rule:#c8d4df; --bg:#ffffff;
+    --good:#1f7a4d; --good-bg:#e9f5ee; --good-rule:#aed8bf;
+    --bad:#b23a2e; --bad-bg:#fbecea; --bad-rule:#e3b4ac;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0; color:var(--ink); background:var(--bg); font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:820px; margin:0 auto; padding:0 24px}
+  .crumb{background:var(--primary); color:#fff; font-size:13px; padding:10px 0}
+  .crumb a{color:#cfe2f1}
+  .crumb .wrap{display:flex; gap:8px; align-items:center}
+  header.hero{background:var(--primary); color:#fff; padding:48px 0 44px}
+  .eyebrow{letter-spacing:.18em; text-transform:uppercase; font-size:12px; opacity:.85; margin:0 0 12px}
+  h1{font-size:42px; line-height:1.06; margin:0 0 14px; font-weight:800; letter-spacing:-.5px}
+  header.hero p.lede{font-size:19px; line-height:1.5; margin:0; max-width:42em; opacity:.96}
+  main{padding:8px 0 8px}
+  section{padding:34px 0; border-bottom:1px solid var(--rule)}
+  section:last-of-type{border-bottom:none}
+  h2{font-size:25px; color:var(--primary); margin:30px 0 6px; letter-spacing:-.3px}
+  h3{font-size:18px; color:var(--primary); margin:0 0 6px}
+  p{margin:12px 0}
+  .idea{background:var(--tint); border-left:4px solid var(--primary); padding:18px 22px; border-radius:0 6px 6px 0; font-size:16px; margin:10px 0}
+  .toc{background:var(--tint2); border-radius:8px; padding:16px 20px; font-size:14px; margin:18px 0 0}
+  .toc b{display:block; color:var(--primary); text-transform:uppercase; letter-spacing:.08em; font-size:12px; margin-bottom:8px}
+  .toc ol{margin:0; padding-left:1.3em}
+  .toc li{margin:5px 0}
+  .principle{border:1px solid var(--rule); border-radius:12px; padding:6px 24px 22px; margin:26px 0}
+  .pnum{display:inline-block; background:var(--accent); color:#fff; font-size:12px; font-weight:700; letter-spacing:.06em; padding:4px 10px; border-radius:0 0 8px 8px; margin-left:-1px}
+  .statement{font-size:17px; font-weight:600; color:#15384f; margin:14px 0 4px}
+  .why{background:var(--tint); border-left:4px solid var(--accent); padding:14px 18px; border-radius:0 6px 6px 0; margin:14px 0; font-size:15px}
+  .why b.k{color:var(--primary)}
+  .eg{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0}
+  .col{border-radius:8px; padding:14px 16px; font-size:14px}
+  .col .tag{font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin-bottom:6px}
+  .col.bad{background:var(--bad-bg); border:1px solid var(--bad-rule)}
+  .col.bad .tag{color:var(--bad)}
+  .col.good{background:var(--good-bg); border:1px solid var(--good-rule)}
+  .col.good .tag{color:var(--good)}
+  .col code{display:block; background:#fff; border:1px solid var(--rule); border-radius:5px; padding:8px 10px; margin-top:8px; font-size:12.5px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:#243b49; white-space:pre-wrap; word-break:break-word}
+  figure{margin:22px 0 6px}
+  figure svg{width:100%; height:auto; display:block; border:1px solid var(--rule); border-radius:10px; background:#fff}
+  figcaption{color:var(--muted); font-size:13px; margin-top:8px; text-align:center}
+  .rule-of-thumb{font-size:14px; color:#333; background:var(--tint2); border-radius:6px; padding:12px 16px; margin:14px 0 0}
+  .rule-of-thumb b{color:var(--primary)}
+  .worked{background:var(--tint); border-radius:10px; padding:18px 22px; margin:14px 0}
+  .worked ul{margin:10px 0 0; padding-left:1.1em}
+  .worked li{margin:7px 0; font-size:15px}
+  .worked .punch{margin-top:14px; font-weight:600; color:#15384f}
+  ul.check{list-style:none; padding:0; margin:14px 0 0}
+  ul.check li{padding:8px 0 8px 30px; position:relative; border-bottom:1px solid var(--rule); font-size:15px}
+  ul.check li:before{content:"\2713"; position:absolute; left:4px; top:8px; color:var(--accent); font-weight:700}
+  code.inl{background:var(--tint2); border-radius:4px; padding:1px 6px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13.5px; color:#243b49}
+  .next{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:8px}
+  .nextcard{border:1px solid var(--rule); border-radius:10px; padding:16px 18px; display:block}
+  .nextcard .k{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:700}
+  .nextcard h3{margin:4px 0 4px; font-size:16px}
+  .nextcard p{margin:0; font-size:13.5px; color:#333}
+  footer{padding:36px 0; color:var(--muted); font-size:14px}
+  @media (max-width:620px){ h1{font-size:32px} .eg{grid-template-columns:1fr} }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Identity and attribution for AI agents",
+  "description": "Know which agent — running which build, on whose behalf — did what. The six required identity fields and the content-hashed agent-type-id.",
+  "image": "https://braceframework.org/og-agent.png",
+  "author": { "@type": "Organization", "name": "The BRACE Project", "url": "https://braceframework.org/" },
+  "publisher": { "@type": "Organization", "name": "BRACE Framework", "logo": { "@type": "ImageObject", "url": "https://braceframework.org/apple-touch-icon.png" } },
+  "datePublished": "2026-06-23",
+  "dateModified": "2026-06-23",
+  "mainEntityOfPage": "https://braceframework.org/guides/agent/",
+  "isPartOf": { "@type": "WebSite", "name": "BRACE Framework", "url": "https://braceframework.org/" }
+}
+</script>
+</head>
+<body>
+
+<div class="crumb">
+  <div class="wrap">
+    <a href="/">BRACE</a> <span aria-hidden="true">›</span>
+    <a href="/guides/">Guides</a> <span aria-hidden="true">›</span>
+    <span>Agent</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">BRACE Guide · Agent</p>
+    <h1>Identity &amp; attribution</h1>
+    <p class="lede">The Agent concern is about knowing which agent did what. When an agent does something it shouldn't, can you tell <strong>which agent — running which build, on whose behalf — did it?</strong> Without that, every incident is unattributable, and you can neither contain it nor learn from it.</p>
+  </div>
+</header>
+
+<main>
+<section>
+  <div class="wrap">
+    <div class="idea">
+      Agents commonly inherit a person's identity or a shared service account, so two different agent builds look identical in your logs. The Agent concern fixes that with a distinct identity per agent, a small set of required fields on every action, and a content hash that pins exactly which build ran. Identity is the <strong>recovery surface</strong>: it turns an incident from "something went wrong somewhere" into "this build, this instance, under this parent, did this." This guide covers BRACE's identity fields and parent-child tracking.
+    </div>
+    <div class="toc">
+      <b>The five principles</b>
+      <ol>
+        <li><a href="#a1">Give the agent its own identity, separate from the launching user</a></li>
+        <li><a href="#a2">Stamp the six required fields on every action</a></li>
+        <li><a href="#a3">Make the agent-type-id a content hash</a></li>
+        <li><a href="#a4">Track parent-child lineage with the parent-passed prompt</a></li>
+        <li><a href="#a5">Treat identity as the recovery surface, not paperwork</a></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="a1">
+  <div class="wrap">
+    <div class="principle">
+      <span class="pnum">PRINCIPLE 1</span>
+      <h2 style="margin-top:14px">Give the agent its own identity, separate from the launching user</h2>
+      <p class="statement">An agent should act as itself, not as the person who launched it and not as a shared service account. Non-human identity is distinct from human identity.</p>
+      <div class="why">
+        <p style="margin:0"><b class="k">Why it matters.</b> If the agent borrows a human's credentials, two things break: you can't separate what the person did from what the agent did, and the agent inherits all of that person's access — usually far more than its task needs. A shared service account is the same problem at scale: every agent build looks the same in the identity provider's logs. Distinct identity is the precondition for both attribution and least privilege.</p>
+      </div>
+      <figure>
+        <svg viewBox="0 0 980 320" role="img" aria-label="Two agent builds indistinguishable under a shared account versus distinct per-agent identities">
+          <rect x="20" y="20" width="450" height="280" rx="12" fill="#fbecea" stroke="#e3b4ac"/>
+          <text x="44" y="52" font-family="Helvetica,Arial,sans-serif" font-size="18" font-weight="bold" fill="#b23a2e">Inherited / shared</text>
+          <rect x="44" y="74" width="180" height="50" rx="8" fill="#fff" stroke="#c8d4df"/>
+          <text x="134" y="104" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#243b49" text-anchor="middle">Agent build A</text>
+          <rect x="266" y="74" width="180" height="50" rx="8" fill="#fff" stroke="#c8d4df"/>
+          <text x="356" y="104" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#243b49" text-anchor="middle">Agent build B</text>
+          <path d="M134 124 L210 176" stroke="#b23a2e" stroke-width="2" fill="none" marker-end="url(#ared)"/>
+          <path d="M356 124 L280 176" stroke="#b23a2e" stroke-width="2" fill="none" marker-end="url(#ared)"/>
+          <rect x="150" y="180" width="190" height="48" rx="8" fill="#fff" stroke="#d9534f"/>
+          <text x="245" y="209" font-family="ui-monospace,Menlo,monospace" font-size="13" fill="#8f2e25" text-anchor="middle">svc-account@corp</text>
+          <text x="44" y="266" font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#8f2e25">Both builds look identical in the logs — and share one set of access.</text>
+
+          <rect x="510" y="20" width="450" height="280" rx="12" fill="#e9f5ee" stroke="#aed8bf"/>
+          <text x="534" y="52" font-family="Helvetica,Arial,sans-serif" font-size="18" font-weight="bold" fill="#1f7a4d">Distinct per agent</text>
+          <rect x="534" y="74" width="180" height="50" rx="8" fill="#fff" stroke="#c8d4df"/>
+          <text x="624" y="104" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#243b49" text-anchor="middle">Agent build A</text>
+          <rect x="756" y="74" width="180" height="50" rx="8" fill="#fff" stroke="#c8d4df"/>
+          <text x="846" y="104" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#243b49" text-anchor="middle">Agent build B</text>
+          <path d="M624 124 L624 176" stroke="#1f7a4d" stroke-width="2" fill="none" marker-end="url(#agrn)"/>
+          <path d="M846 124 L846 176" stroke="#1f7a4d" stroke-width="2" fill="none" marker-end="url(#agrn)"/>
+          <rect x="544" y="180" width="160" height="48" rx="8" fill="#fff" stroke="#1f7a4d"/>
+          <text x="624" y="209" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#1f5b3c" text-anchor="middle">agent-A · own id</text>
+          <rect x="766" y="180" width="160" height="48" rx="8" fill="#fff" stroke="#1f7a4d"/>
+          <text x="846" y="209" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#1f5b3c" text-anchor="middle">agent-B · own id</text>
+          <text x="534" y="266" font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#1f5b3c">Each build is its own identity, separate from the user — attributable and scopable.</text>
+          <defs>
+            <marker id="ared" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#b23a2e"/></marker>
+            <marker id="agrn" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#1f7a4d"/></marker>
+          </defs>
+        </svg>
+        <figcaption>Under a shared or inherited identity, distinct agent builds are indistinguishable and over-privileged. A per-agent identity is what makes attribution and least privilege possible.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="a2">
+  <div class="wrap">
+    <div class="principle">
+      <span class="pnum">PRINCIPLE 2</span>
+      <h2 style="margin-top:14px">Stamp the six required fields on every action</h2>
+      <p class="statement">Every action an agent takes should carry six fields: accountable party, operational owner, tenant, agent-type-id, agent-instance-id, and trace context.</p>
+      <div class="why">
+        <p style="margin:0"><b class="k">Why it matters.</b> These six answer the questions you'll actually ask during an incident: who is responsible for this, who operates it, for which customer, which build, which specific run, and where in the call graph. Most systems capture one or two of these. The missing ones are exactly what leave an incident unattributable — you can see that something happened without being able to say which agent or run it belongs to.</p>
+      </div>
+      <figure>
+        <svg viewBox="0 0 980 290" role="img" aria-label="An action log entry carrying the six required identity fields">
+          <text x="40" y="40" font-family="Helvetica,Arial,sans-serif" font-size="15" font-weight="bold" fill="#1a4d6e">One action — the six fields it carries</text>
+          <rect x="40" y="56" width="900" height="200" rx="10" fill="#eef5fc" stroke="#2e8bc0"/>
+          <g font-family="ui-monospace,Menlo,monospace" font-size="13.5" fill="#15384f">
+            <text x="64" y="94">accountable_party  =  team:payments-platform</text>
+            <text x="64" y="124">operational_owner  =  oncall:agents-sre</text>
+            <text x="64" y="154">tenant             =  customer:acme-corp</text>
+            <text x="64" y="184">agent_type_id      =  sha256:9f2b… (the build)</text>
+            <text x="64" y="214">agent_instance_id  =  run:01J8…  (this run)</text>
+            <text x="64" y="244">trace_context      =  trace:ab12…/span:77  (where in the graph)</text>
+          </g>
+        </svg>
+        <figcaption>The minimum set to answer "who is responsible, who operates it, for whom, which build, which run, and where in the call graph." Anything less leaves a gap where an incident can hide.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="a3">
+  <div class="wrap">
+    <div class="principle">
+      <span class="pnum">PRINCIPLE 3</span>
+      <h2 style="margin-top:14px">Make the agent-type-id a content hash</h2>
+      <p class="statement">Derive the agent-type-id from the build itself — a hash over the container image, harness, system prompt, model, and configuration — not from a name someone assigns.</p>
+      <div class="why">
+        <p style="margin:0"><b class="k">Why it matters.</b> A label like <code class="inl">support-agent-v2</code> is just a name, and names get reused for changed builds. A content hash changes whenever any input changes, so two different configurations are always distinguishable, and a silent change — a hot-patched prompt, a swapped model, an added tool — shows up as a new id in your logs instead of hiding under the old name. It's the same idea as a container digest, extended to everything that determines how the agent behaves.</p>
+      </div>
+      <figure>
+        <svg viewBox="0 0 980 280" role="img" aria-label="The agent-type-id derived as a content hash over the build inputs">
+          <g fill="#fff" stroke="#c8d4df">
+            <rect x="30" y="60" width="180" height="34" rx="6"/>
+            <rect x="30" y="102" width="180" height="34" rx="6"/>
+            <rect x="30" y="144" width="180" height="34" rx="6"/>
+            <rect x="30" y="186" width="180" height="34" rx="6"/>
+            <rect x="30" y="228" width="180" height="34" rx="6"/>
+          </g>
+          <g font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#243b49">
+            <text x="46" y="82">Container image</text>
+            <text x="46" y="124">Harness</text>
+            <text x="46" y="166">System prompt</text>
+            <text x="46" y="208">Model</text>
+            <text x="46" y="250">Configuration</text>
+          </g>
+          <g stroke="#1a4d6e" stroke-width="2" fill="none" marker-end="url(#a3n)">
+            <path d="M210 77 L320 150"/><path d="M210 119 L320 156"/><path d="M210 161 L320 161"/><path d="M210 203 L320 166"/><path d="M210 245 L320 172"/>
+          </g>
+          <rect x="324" y="130" width="150" height="64" rx="10" fill="#123247"/>
+          <text x="399" y="160" font-family="Helvetica,Arial,sans-serif" font-size="14" font-weight="bold" fill="#fff" text-anchor="middle">hash()</text>
+          <text x="399" y="180" font-family="Helvetica,Arial,sans-serif" font-size="11" fill="#9fc4dd" text-anchor="middle">content of the build</text>
+          <path d="M474 162 L556 162" stroke="#1a4d6e" stroke-width="2.5" fill="none" marker-end="url(#a3n)"/>
+          <rect x="560" y="130" width="390" height="64" rx="10" fill="#e9f5ee" stroke="#1f7a4d"/>
+          <text x="580" y="158" font-family="Helvetica,Arial,sans-serif" font-size="13" font-weight="bold" fill="#1f5b3c">agent-type-id</text>
+          <text x="580" y="180" font-family="ui-monospace,Menlo,monospace" font-size="13" fill="#1f5b3c">sha256:9f2b41c…</text>
+          <text x="560" y="226" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#b23a2e">Change any input → a new id. Silent drift can't hide under the old name.</text>
+          <defs><marker id="a3n" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#1a4d6e"/></marker></defs>
+        </svg>
+        <figcaption>The agent-type-id is computed from the build, not assigned to it. Two different configurations can never share an id, and drift is visible the moment it happens.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="a4">
+  <div class="wrap">
+    <div class="principle">
+      <span class="pnum">PRINCIPLE 4</span>
+      <h2 style="margin-top:14px">Track parent-child lineage with the parent-passed prompt</h2>
+      <p class="statement">When an agent spawns a sub-agent, record which sub-agent ran, under which parent, and the prompt the parent handed it.</p>
+      <div class="why">
+        <p style="margin:0"><b class="k">Why it matters.</b> In a multi-agent system, an action three levels deep means little without the chain above it. The parent-passed prompt is the instruction that actually drove the sub-agent — and it's often the only place an injected instruction is visible, since it may never appear in the user's input or the sub-agent's own configuration. Capturing the lineage and that prompt is what lets you trace a deep action back to its real cause.</p>
+      </div>
+      <figure>
+        <svg viewBox="0 0 980 290" role="img" aria-label="A parent agent passing a prompt to a sub-agent, which calls a tool, with ids captured at each level">
+          <rect x="380" y="36" width="220" height="56" rx="10" fill="#1a4d6e"/>
+          <text x="490" y="60" font-family="Helvetica,Arial,sans-serif" font-size="14" font-weight="bold" fill="#fff" text-anchor="middle">Parent agent</text>
+          <text x="490" y="80" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#bcd6e6" text-anchor="middle">type:9f2b · instance:01J8</text>
+          <path d="M490 92 L490 150" stroke="#1a4d6e" stroke-width="2.5" fill="none" marker-end="url(#a4n)"/>
+          <rect x="610" y="104" width="330" height="40" rx="6" fill="#fff4e0" stroke="#e7c98a"/>
+          <text x="626" y="129" font-family="ui-monospace,Menlo,monospace" font-size="11.5" fill="#7a5a12">parent-passed prompt: "extract invoice totals…"</text>
+          <rect x="380" y="150" width="220" height="56" rx="10" fill="#1a4d6e"/>
+          <text x="490" y="174" font-family="Helvetica,Arial,sans-serif" font-size="14" font-weight="bold" fill="#fff" text-anchor="middle">Sub-agent</text>
+          <text x="490" y="194" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#bcd6e6" text-anchor="middle">type:3c7d · instance:01J9 · parent:01J8</text>
+          <path d="M490 206 L490 240" stroke="#1a4d6e" stroke-width="2.5" fill="none" marker-end="url(#a4n)"/>
+          <rect x="380" y="240" width="220" height="40" rx="8" fill="#fff" stroke="#c8d4df"/>
+          <text x="490" y="265" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#243b49" text-anchor="middle">Tool call (attributable up the chain)</text>
+          <defs><marker id="a4n" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#1a4d6e"/></marker></defs>
+        </svg>
+        <figcaption>Each level keeps its own type and instance ids plus its parent, and the edge keeps the prompt the parent passed down — so a deep action traces all the way back to what really drove it.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="a5">
+  <div class="wrap">
+    <div class="principle">
+      <span class="pnum">PRINCIPLE 5</span>
+      <h2 style="margin-top:14px">Treat identity as the recovery surface, not paperwork</h2>
+      <p class="statement">Identity is not a compliance checkbox. It is the surface every response depends on, so build it in before you need it.</p>
+      <div class="why">
+        <p style="margin:0"><b class="k">Why it matters.</b> Containment, the kill switch, the audit trail, and learning from an incident all rest on attribution: you can't stop or explain what you can't identify. Identity added after an incident does nothing for that incident — the actions are already in the logs, unattributed. Treating it as foundational, the way you'd treat authentication for a normal service, is what makes the rest of BRACE work when it counts.</p>
+      </div>
+      <div class="eg">
+        <div class="col bad">
+          <div class="tag">✗ Bolted on later</div>
+          Identity is an afterthought; when something goes wrong, the logs show actions no one can tie to a specific build, run, or owner.
+        </div>
+        <div class="col good">
+          <div class="tag">✓ Built in first</div>
+          Every action is attributable from day one, so containment and audit have something to act on the moment they're needed.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Worked example — a fleet of per-customer support agents</h2>
+    <p>One agent build runs as many instances, one per customer, some spawning sub-agents. Identity applied.</p>
+    <div class="worked">
+      <ul>
+        <li><b>Own identity (P1):</b> the fleet runs under its own non-human identity, not a shared service account or a support rep's login.</li>
+        <li><b>Six fields (P2):</b> every action records accountable party, owner, tenant, type, instance, and trace context.</li>
+        <li><b>Content hash (P3):</b> the agent-type-id is a hash of the build; a prompt hot-patch to one region shows up immediately as a different id.</li>
+        <li><b>Lineage (P4):</b> a sub-agent that escalates a ticket carries its parent's id and the prompt the parent passed it.</li>
+        <li><b>Recovery surface (P5):</b> all of this exists before launch, so an incident is attributable on the first day, not the next quarter.</li>
+      </ul>
+      <p class="punch">When one customer reports something strange, you can name the exact build, instance, and parent involved — and tell whether every other customer's agent is the same build or a drifted one.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Agent go / no-go</h2>
+    <p style="color:var(--muted)">A short gate before you ship. The full version lives in the BRACE sign-off checklist.</p>
+    <ul class="check">
+      <li>The agent has its own identity, separate from the launching user and from shared service accounts.</li>
+      <li>Every action carries the six fields: accountable party, operational owner, tenant, agent-type-id, agent-instance-id, trace context.</li>
+      <li>The agent-type-id is a content hash over container, harness, system prompt, model, and config.</li>
+      <li>Parent-child lineage and the parent-passed prompt are captured for every sub-agent.</li>
+      <li>Identity exists before launch — it isn't something you add after an incident.</li>
+    </ul>
+    <p style="margin-top:18px"><a href="https://github.com/brace-ai-security/brace/blob/main/CHECKLIST.md"><strong>→ Full BRACE sign-off checklist</strong></a></p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Keep going</h2>
+    <div class="next">
+      <a class="nextcard" href="/guides/">
+        <span class="k">All guides</span>
+        <h3>The five BRACE guides</h3>
+        <p>Build-time, Run-time, Agent, Configuration, Ecosystem.</p>
+      </a>
+      <a class="nextcard" href="/guides/configuration/">
+        <span class="k">Pairs with</span>
+        <h3>Configuration — the agent is a config</h3>
+        <p>The build that the agent-type-id hashes.</p>
+      </a>
+      <a class="nextcard" href="/#controls">
+        <span class="k">Reference</span>
+        <h3>The nine controls</h3>
+        <p>How Agent identity fits the whole framework.</p>
+      </a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    The BRACE Framework · <a href="/">braceframework.org</a> · released under <a href="https://github.com/brace-ai-security/brace/blob/main/LICENSE">CC BY 4.0</a> · <a href="https://github.com/brace-ai-security/brace">source on GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>

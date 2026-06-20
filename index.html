@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BRACE Framework — Security for Autonomous AI Agents</title>
+<meta name="description" content="The BRACE Framework: practical security controls for teams that build and operate autonomous AI agents — nine controls, three observability requirements, and a clear order to ship them in.">
+<link rel="canonical" href="https://braceframework.org/">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BRACE Framework">
+<meta property="og:title" content="BRACE Framework — Security for Autonomous AI Agents">
+<meta property="og:description" content="An open, vendor-neutral control framework for autonomous AI agents: nine controls, three observability requirements, and a one-page sign-off checklist.">
+<meta property="og:url" content="https://braceframework.org/">
+<meta property="og:image" content="https://braceframework.org/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="BRACE Framework — security for autonomous AI agents">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="BRACE Framework — Security for Autonomous AI Agents">
+<meta name="twitter:description" content="An open control framework for autonomous AI agents: nine controls, three observability requirements, and a sign-off checklist.">
+<meta name="twitter:image" content="https://braceframework.org/og-image.png">
+<style>
+  :root{
+    --ink:#1a1a1a; --muted:#555a63; --primary:#1a4d6e; --accent:#2e8bc0;
+    --tint:#eef5fc; --tint2:#dde9f3; --rule:#c8d4df; --bg:#ffffff;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; color:var(--ink); background:var(--bg);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:920px; margin:0 auto; padding:0 24px}
+  header{background:var(--primary); color:#fff; padding:64px 0 56px}
+  header .wrap{max-width:920px}
+  .eyebrow{letter-spacing:.18em; text-transform:uppercase; font-size:12px; opacity:.85; margin:0 0 12px}
+  h1{font-size:46px; line-height:1.05; margin:0 0 14px; font-weight:800; letter-spacing:-.5px}
+  header p.lede{font-size:20px; line-height:1.45; margin:0 0 8px; max-width:42em; opacity:.95}
+  .acronym{font-size:13px; letter-spacing:.12em; opacity:.8; margin-top:18px}
+  .btns{margin-top:28px; display:flex; gap:12px; flex-wrap:wrap}
+  .btn{display:inline-block; padding:11px 18px; border-radius:6px; font-weight:600; font-size:15px}
+  .btn-primary{background:#fff; color:var(--primary)}
+  .btn-ghost{background:transparent; color:#fff; border:1px solid rgba(255,255,255,.55)}
+  section{padding:52px 0; border-bottom:1px solid var(--rule)}
+  h2{font-size:26px; color:var(--primary); margin:0 0 6px; letter-spacing:-.3px}
+  .sub{color:var(--muted); margin:0 0 24px}
+  .idea{background:var(--tint); border-left:4px solid var(--primary); padding:18px 22px; border-radius:0 6px 6px 0; font-size:17px}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px; margin-top:8px}
+  .card{border:1px solid var(--rule); border-radius:8px; padding:16px 18px; background:#fff}
+  .card h3{margin:0 0 4px; font-size:15px; color:var(--primary)}
+  .card .n{font-size:12px; color:var(--muted); font-weight:700; letter-spacing:.08em}
+  .card p{margin:6px 0 0; font-size:14px; color:#333}
+  .band{font-size:13px; color:var(--muted); margin:18px 0 4px; font-weight:700; text-transform:uppercase; letter-spacing:.08em}
+  .tiers{counter-reset:t; display:grid; gap:14px; margin-top:8px}
+  .tier{border:1px solid var(--rule); border-left:4px solid var(--accent); border-radius:0 6px 6px 0; padding:14px 18px; background:#fff}
+  .tier h3{margin:0 0 4px; color:var(--primary); font-size:16px}
+  .tier p{margin:0; font-size:14px; color:#333}
+  .note{background:var(--tint2); border-radius:8px; padding:18px 22px; font-size:15px}
+  ul.plain{padding-left:1.1em; margin:10px 0 0}
+  ul.plain li{margin:6px 0}
+  footer{padding:40px 0; color:var(--muted); font-size:14px}
+  .honest{color:var(--muted); font-size:15px}
+  @media (max-width:560px){ h1{font-size:34px} header p.lede{font-size:18px} }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://braceframework.org/#org",
+      "name": "BRACE Framework",
+      "alternateName": "The BRACE Project",
+      "url": "https://braceframework.org/",
+      "logo": "https://braceframework.org/apple-touch-icon.png",
+      "description": "An open, vendor-neutral security framework for autonomous AI agents.",
+      "sameAs": ["https://github.com/brace-ai-security/brace"]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://braceframework.org/#website",
+      "url": "https://braceframework.org/",
+      "name": "BRACE Framework",
+      "description": "Practical security controls for teams that build and operate autonomous AI agents: nine controls, three observability requirements, and a sign-off checklist.",
+      "publisher": { "@id": "https://braceframework.org/#org" }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <p class="eyebrow">Open framework · CC BY 4.0</p>
+    <h1>BRACE Framework</h1>
+    <p class="lede">A practical security framework for teams that build and operate <strong>autonomous AI agents</strong> — the kind that plan, call tools, change real systems, and spawn sub-agents without a human reviewing each action.</p>
+    <p class="acronym">BUILD-TIME · RUN-TIME · AGENT · CONFIGURATION · ECOSYSTEM</p>
+    <div class="btns">
+      <a class="btn btn-primary" href="https://github.com/brace-ai-security/brace/blob/main/CHECKLIST.md">Sign-off checklist</a>
+      <a class="btn btn-ghost" href="/guides/">Guides</a>
+      <a class="btn btn-ghost" href="/resources/">Resources</a>
+      <a class="btn btn-ghost" href="https://github.com/brace-ai-security/brace">View on GitHub</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>The idea</h2>
+    <p class="sub">Why agent security needs its own framework.</p>
+    <div class="idea">
+      An autonomous agent is <strong>not the code that shipped</strong>. It is a runtime <strong>configuration</strong> of infrastructure — a container, a harness (the loop that runs the model and hands it tools), a system prompt, a set of tools, a memory store, an identity, and a network path. Two agents built from the same model can behave completely differently depending on how those parts are configured. So you secure the <strong>configuration</strong>, not the code — there is no code to review.
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Nine controls, three observability requirements</h2>
+    <p class="sub">Every control and observable splits into an <em>agent-scoped</em> half (configured per agent) and an <em>ecosystem-scoped</em> half (the shared substrate). You cannot secure one half alone.</p>
+
+    <p class="band">Build-time — fixed when the agent is built</p>
+    <div class="grid">
+      <div class="card"><span class="n">CONTROL 1</span><h3>Architecture</h3><p>Environment and network isolation; bound the blast radius by topology.</p></div>
+      <div class="card"><span class="n">CONTROL 2</span><h3>Capability-scoped API access</h3><p>Tokens grant specific capabilities, not wildcards.</p></div>
+      <div class="card"><span class="n">CONTROL 3</span><h3>Container</h3><p>Signed, minimal, kernel-isolated; the image hash is part of the agent's identity.</p></div>
+      <div class="card"><span class="n">CONTROL 4</span><h3>Harness</h3><p>Which tools, which limits — and destructive actions blocked by default.</p></div>
+    </div>
+
+    <p class="band">Run-time — active on every execution</p>
+    <div class="grid">
+      <div class="card"><span class="n">CONTROL 5</span><h3>Data</h3><p>Treat all external input as untrusted; assume injection sometimes succeeds.</p></div>
+      <div class="card"><span class="n">CONTROL 6</span><h3>Memory</h3><p>Scope per instance and type; validate writes; keep per-entry provenance.</p></div>
+      <div class="card"><span class="n">CONTROL 7</span><h3>Behavioral</h3><p>Security-anomaly monitoring, separate from quality monitoring.</p></div>
+    </div>
+
+    <p class="band">Closure — stop and explain</p>
+    <div class="grid">
+      <div class="card"><span class="n">CONTROL 8</span><h3>Kill switch</h3><p>A tested way to halt the agent and its sub-agents, leaving a safe state.</p></div>
+      <div class="card"><span class="n">CONTROL 9</span><h3>Audit trail</h3><p>The full execution graph for every action — not just the output.</p></div>
+    </div>
+
+    <p class="band">Observability — the data the controls depend on</p>
+    <div class="grid">
+      <div class="card"><span class="n">T1</span><h3>Required identity fields</h3><p>Six fields per action, including a content-hashed agent-type-id.</p></div>
+      <div class="card"><span class="n">T2</span><h3>Context-size logging</h3><p>Context size at decision time, so baselines can split by size.</p></div>
+      <div class="card"><span class="n">T3</span><h3>Sub-agent provenance</h3><p>Which sub-agent ran, and the prompt the parent gave it.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Ship them in this order</h2>
+    <p class="sub">Most teams cannot build all twelve at once, and should not wait until they can.</p>
+    <div class="tiers">
+      <div class="tier"><h3>Tier 1 — Prevent damage, preserve attribution</h3><p>Destructive-verb interception, capability-scoped tokens, a tested kill switch, an audit trail, and the six identity fields.</p></div>
+      <div class="tier"><h3>Tier 2 — Harden the substrate, surface invisible failures</h3><p>Environment and egress isolation, a signed minimal container, input validation, context-size logging.</p></div>
+      <div class="tier"><h3>Tier 3 — Active detection</h3><p>Behavioral monitoring with sequence-pattern baselines, memory provenance, sub-agent and parent-prompt provenance.</p></div>
+    </div>
+    <p class="honest" style="margin-top:18px">Adopting only part of BRACE means you are accepting the rest of the risk <strong>on purpose</strong>, not removing it.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>It composes — it doesn't replace</h2>
+    <p class="sub">Use OWASP and MITRE to know what can go wrong. Use BRACE to know what to build, and in what order.</p>
+    <div class="note">
+      <ul class="plain">
+        <li><strong>OWASP Top 10 for Agentic Applications</strong> — a threat catalog. BRACE maps each risk (ASI01–ASI10) to the controls that mitigate it.</li>
+        <li><strong>MITRE ATLAS</strong> — attacker techniques. BRACE maps the agentic techniques to controls.</li>
+        <li><strong>NIST AI RMF / ISO 42001</strong> — governance and compliance. BRACE is the technical control layer underneath.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Start here</h2>
+    <p class="sub">Pick the artifact that matches your job.</p>
+    <ul class="plain">
+      <li><a href="/guides/"><strong>Guides</strong></a> — how to build and operate agents correctly, one per concern, with principles and illustrations.</li>
+      <li><a href="/resources/"><strong>Resources</strong></a> — the agent-security ecosystem mapped to BRACE: standards, reference implementations, and open-source building blocks.</li>
+      <li><a href="https://github.com/brace-ai-security/brace/blob/main/CHECKLIST.md"><strong>Sign-off checklist</strong></a> — a one-page go/no-go gate for shipping an agent.</li>
+      <li><a href="https://github.com/brace-ai-security/brace/blob/main/SELF-ASSESSMENT.md"><strong>Self-assessment</strong></a> — score a deployment, or use it to evaluate a vendor.</li>
+      <li><a href="https://github.com/brace-ai-security/brace/blob/main/otel-conventions.md"><strong>OpenTelemetry conventions</strong></a> — the proposed <code>agent.*</code> attributes for identity and provenance.</li>
+      <li><a href="https://github.com/brace-ai-security/brace/blob/main/VENDOR-MATRIX.md"><strong>Vendor matrix</strong></a> — which cloud and open-source offerings cover each control.</li>
+      <li><a href="https://github.com/brace-ai-security/brace/blob/main/CONTRIBUTING.md"><strong>Contribute</strong></a> — propose changes, report an incident, or map a product.</li>
+    </ul>
+    <p class="honest" style="margin-top:22px"><strong>Status.</strong> BRACE is a synthesis of agent-security practice already in production across the industry — not yet a validated standard. The individual controls are widely deployed; what BRACE adds is the unified organization and the agent-granularity instrumentation. It is an open, evolving project — apply it, critique it, and contribute.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Using BRACE? Get featured</h2>
+    <p class="sub">We list the teams, assessors, and products putting BRACE to work.</p>
+    <div class="note">
+      <ul class="plain">
+        <li><strong>Run agents in production?</strong> Share a short case study.</li>
+        <li><strong>Security firm or consultancy?</strong> Use BRACE as your agent-security assessment methodology and get listed as an assessor.</li>
+        <li><strong>Vendor?</strong> Map your product to the controls and we'll link the mapping.</li>
+      </ul>
+      <p style="margin:14px 0 0"><a href="https://github.com/brace-ai-security/brace/issues/new?template=get-listed.yml"><strong>→ Get listed</strong></a> &nbsp;·&nbsp; see current <a href="https://github.com/brace-ai-security/brace/blob/main/ADOPTERS.md">adopters &amp; assessors</a></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    The BRACE Framework · released under <a href="https://github.com/brace-ai-security/brace/blob/main/LICENSE">CC BY 4.0</a> · <a href="https://github.com/brace-ai-security/brace">source on GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>

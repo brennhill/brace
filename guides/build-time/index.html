@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Building agents correctly — BRACE Build-time guide</title>
+<meta name="description" content="A practical guide to build-time agent security: give the agent the least it needs, bound the blast radius by topology, scope credentials, gate destructive actions, and pin the build. With reasons and illustrations.">
+<link rel="canonical" href="https://braceframework.org/guides/build-time/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="BRACE Framework">
+<meta property="og:title" content="Building agents correctly — the BRACE Build-time guide">
+<meta property="og:description" content="Bound what an agent can possibly do before it ever runs: least privilege, network isolation, scoped credentials, a destructive-verb gate, and a signed build. Principles, reasons, and illustrations.">
+<meta property="og:url" content="https://braceframework.org/guides/build-time/">
+<meta property="og:image" content="https://braceframework.org/og-build-time.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="BRACE Build-time security guide">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Building agents correctly — the BRACE Build-time guide">
+<meta name="twitter:description" content="Bound what an agent can possibly do before it ever runs. Principles, reasons, and illustrations.">
+<meta name="twitter:image" content="https://braceframework.org/og-build-time.png">
+<style>
+  :root{
+    --ink:#1a1a1a; --muted:#555a63; --primary:#1a4d6e; --accent:#2e8bc0;
+    --tint:#eef5fc; --tint2:#dde9f3; --rule:#c8d4df; --bg:#ffffff;
+    --good:#1f7a4d; --good-bg:#e9f5ee; --good-rule:#aed8bf;
+    --bad:#b23a2e; --bad-bg:#fbecea; --bad-rule:#e3b4ac;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; color:var(--ink); background:var(--bg);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:820px; margin:0 auto; padding:0 24px}
+  .crumb{background:var(--primary); color:#fff; font-size:13px; padding:10px 0}
+  .crumb a{color:#cfe2f1}
+  .crumb .wrap{display:flex; gap:8px; align-items:center}
+  header.hero{background:var(--primary); color:#fff; padding:48px 0 44px}
+  .eyebrow{letter-spacing:.18em; text-transform:uppercase; font-size:12px; opacity:.85; margin:0 0 12px}
+  h1{font-size:42px; line-height:1.06; margin:0 0 14px; font-weight:800; letter-spacing:-.5px}
+  header.hero p.lede{font-size:19px; line-height:1.5; margin:0; max-width:42em; opacity:.96}
+  main{padding:8px 0 8px}
+  section{padding:34px 0; border-bottom:1px solid var(--rule)}
+  section:last-of-type{border-bottom:none}
+  h2{font-size:25px; color:var(--primary); margin:30px 0 6px; letter-spacing:-.3px}
+  h3{font-size:18px; color:var(--primary); margin:0 0 6px}
+  p{margin:12px 0}
+  .lead{font-size:17px}
+  .idea{background:var(--tint); border-left:4px solid var(--primary); padding:18px 22px; border-radius:0 6px 6px 0; font-size:16px; margin:10px 0}
+  .toc{background:var(--tint2); border-radius:8px; padding:16px 20px; font-size:14px; margin:18px 0 0}
+  .toc b{display:block; color:var(--primary); text-transform:uppercase; letter-spacing:.08em; font-size:12px; margin-bottom:8px}
+  .toc ol{margin:0; padding-left:1.3em}
+  .toc li{margin:5px 0}
+  .principle{border:1px solid var(--rule); border-radius:12px; padding:6px 24px 22px; margin:26px 0}
+  .pnum{display:inline-block; background:var(--accent); color:#fff; font-size:12px; font-weight:700; letter-spacing:.06em; padding:4px 10px; border-radius:0 0 8px 8px; margin-left:-1px}
+  .statement{font-size:17px; font-weight:600; color:#15384f; margin:14px 0 4px}
+  .why{background:var(--tint); border-left:4px solid var(--accent); padding:14px 18px; border-radius:0 6px 6px 0; margin:14px 0; font-size:15px}
+  .why b.k{color:var(--primary)}
+  .eg{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0}
+  .col{border-radius:8px; padding:14px 16px; font-size:14px}
+  .col .tag{font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin-bottom:6px}
+  .col.bad{background:var(--bad-bg); border:1px solid var(--bad-rule)}
+  .col.bad .tag{color:var(--bad)}
+  .col.good{background:var(--good-bg); border:1px solid var(--good-rule)}
+  .col.good .tag{color:var(--good)}
+  .col code{display:block; background:#fff; border:1px solid var(--rule); border-radius:5px; padding:8px 10px; margin-top:8px; font-size:12.5px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:#243b49; white-space:pre-wrap; word-break:break-word}
+  figure{margin:22px 0 6px}
+  figure svg{width:100%; height:auto; display:block; border:1px solid var(--rule); border-radius:10px; background:#fff}
+  figcaption{color:var(--muted); font-size:13px; margin-top:8px; text-align:center}
+  .rule-of-thumb{font-size:14px; color:#333; background:var(--tint2); border-radius:6px; padding:12px 16px; margin:14px 0 0}
+  .rule-of-thumb b{color:var(--primary)}
+  .worked{background:var(--tint); border-radius:10px; padding:18px 22px; margin:14px 0}
+  .worked ul{margin:10px 0 0; padding-left:1.1em}
+  .worked li{margin:7px 0; font-size:15px}
+  .worked .punch{margin-top:14px; font-weight:600; color:#15384f}
+  ul.check{list-style:none; padding:0; margin:14px 0 0}
+  ul.check li{padding:8px 0 8px 30px; position:relative; border-bottom:1px solid var(--rule); font-size:15px}
+  ul.check li:before{content:"\2713"; position:absolute; left:4px; top:8px; color:var(--accent); font-weight:700}
+  code.inl{background:var(--tint2); border-radius:4px; padding:1px 6px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13.5px; color:#243b49}
+  .next{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:8px}
+  .nextcard{border:1px solid var(--rule); border-radius:10px; padding:16px 18px; display:block}
+  .nextcard .k{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:700}
+  .nextcard h3{margin:4px 0 4px; font-size:16px}
+  .nextcard p{margin:0; font-size:13.5px; color:#333}
+  .nextcard.soon{opacity:.72}
+  footer{padding:36px 0; color:var(--muted); font-size:14px}
+  @media (max-width:620px){ h1{font-size:32px} .eg{grid-template-columns:1fr} }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Building agents correctly",
+  "description": "Bound what an agent can possibly do before it ever runs: least privilege, network isolation, scoped credentials, a destructive-verb gate, and a signed build.",
+  "image": "https://braceframework.org/og-build-time.png",
+  "author": { "@type": "Organization", "name": "The BRACE Project", "url": "https://braceframework.org/" },
+  "publisher": { "@type": "Organization", "name": "BRACE Framework", "logo": { "@type": "ImageObject", "url": "https://braceframework.org/apple-touch-icon.png" } },
+  "datePublished": "2026-06-22",
+  "dateModified": "2026-06-23",
+  "mainEntityOfPage": "https://braceframework.org/guides/build-time/",
+  "isPartOf": { "@type": "WebSite", "name": "BRACE Framework", "url": "https://braceframework.org/" }
+}
+</script>
+</head>
+<body>
+
+<div class="crumb">
+  <div class="wrap">
+    <a href="/">BRACE</a> <span aria-hidden="true">›</span>
+    <a href="/guides/">Guides</a> <span aria-hidden="true">›</span>
+    <span>Build-time</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">BRACE Guide · Build-time</p>
+    <h1>Building agents correctly</h1>
+    <p class="lede">Build-time is everything you decide and freeze <strong>before the agent ever runs</strong>: its tools, credentials, network paths, container, and harness rules. It is the cheapest and most reliable place to make an agent safe, because these controls don't depend on the model behaving. Get them right and most catastrophic outcomes become impossible by construction rather than merely discouraged.</p>
+  </div>
+</header>
+
+<main>
+<section>
+  <div class="wrap">
+    <div class="idea">
+      A confused, jailbroken, or prompt-injected agent still cannot do what its build never gave it the means to do. Run-time controls <em>detect and respond</em>; build-time controls <em>bound what is possible at all</em>. This guide covers the six principles behind BRACE's build-time controls — Architecture, Capability-scoped access, Container, and Harness — with the reasons they matter and worked examples.
+    </div>
+    <div class="toc">
+      <b>The six principles</b>
+      <ol>
+        <li><a href="#p1">Give the agent the least it needs — and decide it in advance</a></li>
+        <li><a href="#p2">Bound the blast radius by topology, not by trust</a></li>
+        <li><a href="#p3">Scope and time-box every credential</a></li>
+        <li><a href="#p4">Gate destructive actions in the harness, deny-by-default</a></li>
+        <li><a href="#p5">Pin and sign the build; make it part of the agent's identity</a></li>
+        <li><a href="#p6">Treat the harness and system prompt as reviewed artifacts</a></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="p1">
+  <div class="wrap">
+    <div class="principle">
+      <span class="pnum">PRINCIPLE 1</span>
+      <h2 style="margin-top:14px">Give the agent the least it needs — and decide it in advance</h2>
+      <p class="statement">An agent should have access to nothing it doesn't need, and every access should be granted ahead of time — not discovered, escalated, or improvised at run-time. This applies equally to tools, MCP servers, credentials, file paths, and network destinations.</p>
+
+      <div class="why">
+        <p style="margin:0 0 10px"><b class="k">Why it matters — and the two reasons point the same way:</b></p>
+        <p style="margin:0 0 10px"><b>Security: scope is your blast radius.</b> Whatever you grant is exactly what a hijacked agent can do. Prompt injection, a poisoned web page, or a confused plan can't cause harm if the capability was never there. Least privilege changes the requirement from &ldquo;the model must always behave&rdquo; to &ldquo;the model can't do harm even when it misbehaves.&rdquo;</p>
+        <p style="margin:0"><b>Capability: fewer tools work better.</b> Teams often get this backwards. Every tool and every MCP server you attach is injected into the model's context as a schema it must read on <em>every</em> step. Twenty tools can be thousands of tokens of menus the model reads before it starts your task, which is context budget spent on options instead of reasoning. More choices also degrade selection: the model picks the wrong tool, invents arguments, or chains tools that shouldn't be chained. A focused toolset is safer, and it is also faster, cheaper, and more accurate. Adding a tool &ldquo;just in case&rdquo; carries a real, recurring cost on every run.</p>
+      </div>
+
+      <p>Minimal scope is one of the few controls that improves security and performance at the same time.</p>
+
+      <figure>
+        <svg viewBox="0 0 980 430" role="img" aria-label="Comparison of an over-scoped agent drowning in tools versus a right-scoped agent">
+          <!-- LEFT: over-scoped -->
+          <rect x="20" y="20" width="460" height="390" rx="12" fill="#fbecea" stroke="#e3b4ac"/>
+          <text x="44" y="56" font-family="Helvetica,Arial,sans-serif" font-size="22" font-weight="bold" fill="#b23a2e">OVER-SCOPED</text>
+          <text x="44" y="82" font-family="Helvetica,Arial,sans-serif" font-size="15" fill="#7a3b33">18 tools · 6 MCP servers attached</text>
+          <rect x="44" y="104" width="92" height="44" rx="8" fill="#1a4d6e"/>
+          <text x="90" y="131" font-family="Helvetica,Arial,sans-serif" font-size="14" font-weight="bold" fill="#fff" text-anchor="middle">AGENT</text>
+          <!-- 16 tool chips -->
+          <g fill="#fff" stroke="#cf6a5d">
+            <rect x="170" y="104" width="60" height="22" rx="6"/><rect x="238" y="104" width="60" height="22" rx="6"/><rect x="306" y="104" width="60" height="22" rx="6"/><rect x="374" y="104" width="60" height="22" rx="6"/>
+            <rect x="170" y="134" width="60" height="22" rx="6"/><rect x="238" y="134" width="60" height="22" rx="6"/><rect x="306" y="134" width="60" height="22" rx="6"/><rect x="374" y="134" width="60" height="22" rx="6"/>
+            <rect x="170" y="164" width="60" height="22" rx="6"/><rect x="238" y="164" width="60" height="22" rx="6"/><rect x="306" y="164" width="60" height="22" rx="6"/><rect x="374" y="164" width="60" height="22" rx="6"/>
+            <rect x="170" y="194" width="60" height="22" rx="6"/><rect x="238" y="194" width="60" height="22" rx="6"/><rect x="306" y="194" width="60" height="22" rx="6"/><rect x="374" y="194" width="60" height="22" rx="6"/>
+          </g>
+          <text x="44" y="278" font-family="Helvetica,Arial,sans-serif" font-size="14" fill="#555a63">Context window at every step</text>
+          <rect x="44" y="290" width="412" height="30" rx="5" fill="#fff" stroke="#c8d4df"/>
+          <rect x="44" y="290" width="300" height="30" rx="5" fill="#d9534f"/>
+          <text x="60" y="310" font-family="Helvetica,Arial,sans-serif" font-size="13" font-weight="bold" fill="#fff">Tool schemas + menus</text>
+          <text x="400" y="310" font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#7a3b33" text-anchor="middle">task</text>
+          <text x="44" y="364" font-family="Helvetica,Arial,sans-serif" font-size="15" font-weight="bold" fill="#b23a2e">✗ Wrong-tool errors · slower · costlier</text>
+
+          <!-- RIGHT: right-scoped -->
+          <rect x="500" y="20" width="460" height="390" rx="12" fill="#e9f5ee" stroke="#aed8bf"/>
+          <text x="524" y="56" font-family="Helvetica,Arial,sans-serif" font-size="22" font-weight="bold" fill="#1f7a4d">RIGHT-SCOPED</text>
+          <text x="524" y="82" font-family="Helvetica,Arial,sans-serif" font-size="15" fill="#2f6b4c">3 tools · 1 MCP server</text>
+          <rect x="524" y="104" width="92" height="44" rx="8" fill="#1a4d6e"/>
+          <text x="570" y="131" font-family="Helvetica,Arial,sans-serif" font-size="14" font-weight="bold" fill="#fff" text-anchor="middle">AGENT</text>
+          <g fill="#fff" stroke="#1f7a4d">
+            <rect x="650" y="104" width="170" height="30" rx="6"/>
+            <rect x="650" y="146" width="170" height="30" rx="6"/>
+            <rect x="650" y="188" width="170" height="30" rx="6"/>
+          </g>
+          <text x="735" y="124" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#15384f" text-anchor="middle">read:tickets</text>
+          <text x="735" y="166" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#15384f" text-anchor="middle">post_comment</text>
+          <text x="735" y="208" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#15384f" text-anchor="middle">search_kb</text>
+          <text x="524" y="278" font-family="Helvetica,Arial,sans-serif" font-size="14" fill="#555a63">Context window at every step</text>
+          <rect x="524" y="290" width="412" height="30" rx="5" fill="#fff" stroke="#c8d4df"/>
+          <rect x="524" y="290" width="92" height="30" rx="5" fill="#5cb27e"/>
+          <text x="640" y="310" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#2f6b4c">Task + reasoning</text>
+          <text x="524" y="364" font-family="Helvetica,Arial,sans-serif" font-size="15" font-weight="bold" fill="#1f7a4d">✓ Right tool · faster · cheaper</text>
+        </svg>
+        <figcaption>Same model, same task. Every attached tool spends context on every step and adds another wrong choice the agent can make. Fewer tools is both safer and more capable.</figcaption>
+      </figure>
+
+      <div class="eg">
+        <div class="col bad">
+          <div class="tag">✗ Over-scoped</div>
+          A ticket-triage agent given a full GitHub MCP, a filesystem tool, the AWS CLI, a shell, and 14 more tools &ldquo;so it's flexible.&rdquo; This is token-heavy, error-prone, and one injection away from touching prod.
+          <code>tools: [github(*), shell, fs, awscli, ...14 more]</code>
+        </div>
+        <div class="col good">
+          <div class="tag">✓ Right-scoped</div>
+          The same agent given exactly three tools, chosen in advance. Lean context, reliable selection, and the worst it can do is post a bad comment.
+          <code>tools: [read:tickets, post_comment, search_kb]</code>
+        </div>
+      </div>
+
+      <p class="rule-of-thumb"><b>Rule of thumb:</b> if you can't name why a tool is there and what it's allowed to touch, remove it. Start from zero and add deliberately — don't start from &ldquo;everything&rdquo; and prune.</p>
+    </div>
+  </div>
+</section>
+
+<section id="p2">
+  <div class="wrap">
+    <div class="principle">
+      <span class="pnum">PRINCIPLE 2</span>
+      <h2 style="margin-top:14px">Bound the blast radius by topology, not by trust</h2>
+      <p class="statement">Put the agent where it physically cannot reach what it must never touch. Network and environment isolation is the control that holds even when every other control fails — because it doesn't rely on the agent deciding anything.</p>
+
+      <div class="why">
+        <p style="margin:0"><b class="k">Why it matters.</b> An agent can't delete a production database it has no network route to. It can't exfiltrate to an endpoint that egress rules block. Topology does not depend on your threat model: it contains mistakes, jailbreaks, and attacks you haven't imagined, because the path simply isn't there. Several publicly reported incidents where an agent destroyed a production database during a freeze share one root cause: the agent's environment had a route to prod and credentials for it. The fix is not a better prompt. It is removing the route.</p>
+      </div>
+
+      <figure>
+        <svg viewBox="0 0 980 420" role="img" aria-label="Agent sandbox with allowed egress to two services and no route to prod, payments, or admin">
+          <!-- sandbox -->
+          <rect x="30" y="50" width="340" height="320" rx="14" fill="#eef5fc" stroke="#2e8bc0" stroke-width="2"/>
+          <text x="52" y="82" font-family="Helvetica,Arial,sans-serif" font-size="16" font-weight="bold" fill="#1a4d6e">Agent sandbox</text>
+          <rect x="70" y="100" width="130" height="50" rx="8" fill="#1a4d6e"/>
+          <text x="135" y="131" font-family="Helvetica,Arial,sans-serif" font-size="14" font-weight="bold" fill="#fff" text-anchor="middle">AGENT</text>
+          <g fill="#fff" stroke="#c8d4df">
+            <rect x="70" y="178" width="220" height="26" rx="6"/>
+            <rect x="70" y="214" width="220" height="26" rx="6"/>
+            <rect x="70" y="250" width="220" height="26" rx="6"/>
+          </g>
+          <text x="80" y="196" font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#333">read:tickets</text>
+          <text x="80" y="232" font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#333">post_comment</text>
+          <text x="80" y="268" font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#333">search_kb</text>
+          <text x="52" y="348" font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#555a63">egress allow-list only</text>
+
+          <!-- boundary -->
+          <line x1="470" y1="34" x2="470" y2="392" stroke="#9aa6b0" stroke-width="2" stroke-dasharray="6 6"/>
+          <text x="470" y="26" font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#777" text-anchor="middle">network boundary</text>
+
+          <!-- allowed -->
+          <rect x="560" y="64" width="384" height="52" rx="8" fill="#e9f5ee" stroke="#1f7a4d"/>
+          <text x="580" y="95" font-family="Helvetica,Arial,sans-serif" font-size="14" fill="#1f5b3c">Ticket API — read + comment</text>
+          <rect x="560" y="128" width="384" height="52" rx="8" fill="#e9f5ee" stroke="#1f7a4d"/>
+          <text x="580" y="159" font-family="Helvetica,Arial,sans-serif" font-size="14" fill="#1f5b3c">Knowledge base — read</text>
+          <path d="M370 150 L560 90" stroke="#1f7a4d" stroke-width="2.5" fill="none" marker-end="url(#agrn)"/>
+          <path d="M370 168 L560 154" stroke="#1f7a4d" stroke-width="2.5" fill="none" marker-end="url(#agrn)"/>
+
+          <!-- blocked -->
+          <rect x="560" y="222" width="384" height="44" rx="8" fill="#fbecea" stroke="#b23a2e"/>
+          <text x="580" y="249" font-family="Helvetica,Arial,sans-serif" font-size="14" fill="#8f2e25">Production database</text>
+          <rect x="560" y="276" width="384" height="44" rx="8" fill="#fbecea" stroke="#b23a2e"/>
+          <text x="580" y="303" font-family="Helvetica,Arial,sans-serif" font-size="14" fill="#8f2e25">Payments / billing</text>
+          <rect x="560" y="330" width="384" height="44" rx="8" fill="#fbecea" stroke="#b23a2e"/>
+          <text x="580" y="357" font-family="Helvetica,Arial,sans-serif" font-size="14" fill="#8f2e25">Admin &amp; IAM</text>
+          <g stroke="#d9534f" stroke-width="2.5">
+            <line x1="370" y1="244" x2="452" y2="244"/>
+            <line x1="370" y1="298" x2="452" y2="298"/>
+            <line x1="370" y1="352" x2="452" y2="352"/>
+          </g>
+          <g font-family="Helvetica,Arial,sans-serif" font-size="17" font-weight="bold" fill="#d9534f" text-anchor="middle">
+            <text x="466" y="250">✗</text><text x="466" y="304">✗</text><text x="466" y="358">✗</text>
+          </g>
+          <text x="500" y="392" font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#8f2e25">no route — unreachable by construction</text>
+          <defs>
+            <marker id="agrn" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#1f7a4d"/></marker>
+          </defs>
+        </svg>
+        <figcaption>A hijacked agent can only reach what you connected it to. Prod, payments, and the admin plane are not merely protected; they have no route at all.</figcaption>
+      </figure>
+
+      <div class="eg">
+        <div class="col bad">
+          <div class="tag">✗ Trust-based</div>
+          Agent runs in an environment with VPC access to prod and a broad <code class="inl">egress: allow-all</code>. Safety depends on the agent choosing not to misuse it.
+        </div>
+        <div class="col good">
+          <div class="tag">✓ Topology-based</div>
+          Agent runs in an isolated segment; egress allowed only to the two services it needs. Prod, payments, and admin are unreachable regardless of what the agent tries.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="p3">
+  <div class="wrap">
+    <div class="principle">
+      <span class="pnum">PRINCIPLE 3</span>
+      <h2 style="margin-top:14px">Scope and time-box every credential</h2>
+      <p class="statement">Tokens grant specific capabilities, never wildcards, and they expire. No standing god-credentials live in the agent's environment.</p>
+
+      <div class="why">
+        <p style="margin:0"><b class="k">Why it matters.</b> Topology limits where the agent can go; credentials limit what it can do once there. A <code class="inl">read:tickets</code> token can't authorize a deletion even if the agent is tricked into trying. Short lifetimes shrink the window a leaked or misused credential is good for, and narrow scopes make the audit trail meaningful — you can tell what an action could possibly have been. Wildcard tokens turn one mistake into a total compromise.</p>
+      </div>
+
+      <div class="eg">
+        <div class="col bad">
+          <div class="tag">✗ Standing &amp; broad</div>
+          A long-lived personal access token, or cloud keys with full reach.
+          <code>scopes: [repo, admin:org]
+aws: { "Action": "*", "Resource": "*" }</code>
+        </div>
+        <div class="col good">
+          <div class="tag">✓ Scoped &amp; short-lived</div>
+          A per-run token, minimum scopes, auto-expiring.
+          <code>scopes: [read:tickets, write:comments]
+ttl: 15m   issued: per-run</code>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="p4">
+  <div class="wrap">
+    <div class="principle">
+      <span class="pnum">PRINCIPLE 4</span>
+      <h2 style="margin-top:14px">Gate destructive actions in the harness, deny-by-default</h2>
+      <p class="statement">The harness — not the model — decides whether an irreversible action is allowed. Keep a deny-by-default list for destructive verbs (delete, <code class="inl">DROP</code>, force-push, infra teardown, mass external send); high-risk actions require a second factor such as human approval or an out-of-band confirmation.</p>
+
+      <div class="why">
+        <p style="margin:0"><b class="k">Why it matters.</b> This is the highest-leverage build-time control. The model's judgment is not a safety boundary: it can be wrong, jailbroken, or injected. A gate in the harness is deterministic. It stops the most common catastrophic incidents (dropped tables, <code class="inl">rm -rf</code>, force-pushes, mass deletes) regardless of <em>why</em> the agent tried. You don't enumerate every safe action; you block a short list of irreversible ones and route them through a human.</p>
+      </div>
+
+      <figure>
+        <svg viewBox="0 0 980 380" role="img" aria-label="Harness gate passing safe actions and blocking destructive ones">
+          <rect x="24" y="150" width="170" height="74" rx="10" fill="#1a4d6e"/>
+          <text x="109" y="183" font-family="Helvetica,Arial,sans-serif" font-size="15" font-weight="bold" fill="#fff" text-anchor="middle">AGENT</text>
+          <text x="109" y="205" font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#bcd6e6" text-anchor="middle">proposes action</text>
+          <path d="M194 187 L286 187" stroke="#1a4d6e" stroke-width="2.5" fill="none" marker-end="url(#anavy)"/>
+
+          <rect x="290" y="70" width="150" height="240" rx="12" fill="#123247" stroke="#2e8bc0" stroke-width="2"/>
+          <text x="365" y="180" font-family="Helvetica,Arial,sans-serif" font-size="16" font-weight="bold" fill="#fff" text-anchor="middle">HARNESS</text>
+          <text x="365" y="202" font-family="Helvetica,Arial,sans-serif" font-size="16" font-weight="bold" fill="#fff" text-anchor="middle">GATE</text>
+          <text x="365" y="226" font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#9fc4dd" text-anchor="middle">deny-by-default</text>
+
+          <!-- allowed -->
+          <path d="M440 140 L540 120" stroke="#1f7a4d" stroke-width="2.5" fill="none" marker-end="url(#agrn2)"/>
+          <rect x="548" y="74" width="404" height="120" rx="10" fill="#e9f5ee" stroke="#1f7a4d"/>
+          <text x="570" y="104" font-family="Helvetica,Arial,sans-serif" font-size="15" font-weight="bold" fill="#1f5b3c">Allowed → execute</text>
+          <g fill="#fff" stroke="#1f7a4d"><rect x="570" y="120" width="118" height="28" rx="6"/><rect x="700" y="120" width="118" height="28" rx="6"/><rect x="570" y="156" width="118" height="28" rx="6"/></g>
+          <g font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#15384f" text-anchor="middle"><text x="629" y="139">read:ticket</text><text x="759" y="139">post_comment</text><text x="629" y="175">search_kb</text></g>
+
+          <!-- blocked -->
+          <path d="M440 240 L512 240" stroke="#d9534f" stroke-width="2.5" fill="none"/>
+          <text x="528" y="247" font-family="Helvetica,Arial,sans-serif" font-size="20" font-weight="bold" fill="#d9534f" text-anchor="middle">✗</text>
+          <rect x="548" y="208" width="404" height="140" rx="10" fill="#fbecea" stroke="#b23a2e"/>
+          <text x="570" y="236" font-family="Helvetica,Arial,sans-serif" font-size="15" font-weight="bold" fill="#8f2e25">Blocked → deny / require human approval</text>
+          <g fill="#fff" stroke="#b23a2e"><rect x="570" y="252" width="118" height="28" rx="6"/><rect x="700" y="252" width="150" height="28" rx="6"/><rect x="570" y="288" width="150" height="28" rx="6"/><rect x="732" y="288" width="160" height="28" rx="6"/></g>
+          <g font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#8f2e25" text-anchor="middle"><text x="629" y="271">DROP TABLE</text><text x="775" y="271">rm -rf /</text><text x="645" y="307">git push --force</text><text x="812" y="307">terminate-instances</text></g>
+          <defs>
+            <marker id="anavy" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#1a4d6e"/></marker>
+            <marker id="agrn2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#1f7a4d"/></marker>
+          </defs>
+        </svg>
+        <figcaption>The harness inspects every proposed tool call. Safe verbs pass; a short deny-list of irreversible verbs is blocked or routed to a human. This happens deterministically, no matter how the agent was confused.</figcaption>
+      </figure>
+
+      <div class="eg">
+        <div class="col bad">
+          <div class="tag">✗ Trusting the model</div>
+          The agent has a shell and &ldquo;knows not to&rdquo; run destructive commands. One injection or bad plan removes that assumption.
+        </div>
+        <div class="col good">
+          <div class="tag">✓ Gating in the harness</div>
+          The harness intercepts every call. Read and comment pass; <code class="inl">DROP TABLE</code>, <code class="inl">rm -rf</code>, and <code class="inl">git push --force</code> are denied or sent to a human approval step.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="p5">
+  <div class="wrap">
+    <div class="principle">
+      <span class="pnum">PRINCIPLE 5</span>
+      <h2 style="margin-top:14px">Pin and sign the build; make it part of the agent's identity</h2>
+      <p class="statement">Ship a minimal, signed container pinned by digest, and record that digest — along with the harness, system prompt, model, and config — in the agent's identity. A silently changed build should be detectable.</p>
+
+      <div class="why">
+        <p style="margin:0"><b class="k">Why it matters.</b> The agent's behavior is determined by its build. If the build can change without anyone noticing, so can its behavior, including maliciously through a poisoned dependency or a tampered image. A pinned, signed image gives you integrity and reproducibility, and a minimal image removes tools an attacker could pivot to (no shell, no <code class="inl">curl</code> if you don't need them). The supply-chain failure mode is real: a destructive change merged into a widely distributed developer extension shipped to roughly a million users. Folding the digest into the content-hashed <code class="inl">agent-type-id</code> means drift shows up in your logs instead of staying invisible.</p>
+      </div>
+
+      <div class="eg">
+        <div class="col bad">
+          <div class="tag">✗ Mutable</div>
+          <code>image: agent:latest</code>
+          A full base image with a shell and package manager; &ldquo;latest&rdquo; can change underneath you.
+        </div>
+        <div class="col good">
+          <div class="tag">✓ Pinned &amp; signed</div>
+          <code>image: agent@sha256:9f2b…
+base: distroless · cosign: verified</code>
+          Digest folded into <code class="inl">agent-type-id</code>, so drift is visible.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="p6">
+  <div class="wrap">
+    <div class="principle">
+      <span class="pnum">PRINCIPLE 6</span>
+      <h2 style="margin-top:14px">Treat the harness and system prompt as reviewed artifacts</h2>
+      <p class="statement">The harness and system prompt are security-relevant code. Version them, diff-review them in pull requests, and freeze them per release. They should not be editable in production by anyone who feels like it.</p>
+
+      <div class="why">
+        <p style="margin:0"><b class="k">Why it matters.</b> Two agents with the same model behave very differently depending on their prompt and harness. So an editable-in-prod system prompt is an unreviewed, unattributed code path with full influence over the agent. A one-line prompt change can remove a guardrail or redirect the agent's goals. Applying the same change-review discipline you use for code to these artifacts is what makes the rest of your controls trustworthy. <em>(This is where Build-time meets Configuration; see that guide.)</em></p>
+      </div>
+
+      <div class="eg">
+        <div class="col bad">
+          <div class="tag">✗ Editable config</div>
+          The system prompt lives in a database row an ops dashboard can edit live — no review, no history, no attribution.
+        </div>
+        <div class="col good">
+          <div class="tag">✓ Reviewed artifact</div>
+          Prompt and harness config live in version control, change only via reviewed pull requests, and are hash-pinned at deploy.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Worked example — a support-ticket triage agent, built right</h2>
+    <p>The six principles aren't separate checkboxes; they compose. Here is one ordinary agent with all six applied.</p>
+    <div class="worked">
+      <ul>
+        <li><b>Scope (P1):</b> three tools — <code class="inl">read:tickets</code>, <code class="inl">post_comment</code>, <code class="inl">search_kb</code>. No shell, no filesystem, no extra MCP servers.</li>
+        <li><b>Topology (P2):</b> an isolated segment; egress only to the ticket API and the knowledge base. No route to prod, payments, or admin.</li>
+        <li><b>Credentials (P3):</b> a short-lived token scoped to <code class="inl">read:tickets write:comments</code>, issued per run.</li>
+        <li><b>Gate (P4):</b> the harness denies every destructive verb; the only write is a comment, and even that is rate-limited.</li>
+        <li><b>Build (P5):</b> a distroless image, pinned by digest and signed; the digest is part of its <code class="inl">agent-type-id</code>.</li>
+        <li><b>Artifacts (P6):</b> the prompt and harness live in git, reviewed by PR, frozen at the deployed digest.</li>
+      </ul>
+      <p class="punch">In the worst case, fully hijacked, it posts a bad comment on a ticket. That is the entire blast radius.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Build-time go / no-go</h2>
+    <p class="sub" style="color:var(--muted)">A short gate before you ship. The full version lives in the BRACE sign-off checklist.</p>
+    <ul class="check">
+      <li>Every tool, MCP server, and credential is named and justified; defaults removed.</li>
+      <li>The agent has no network route to systems it must never touch.</li>
+      <li>All credentials are capability-scoped and time-boxed; no wildcards.</li>
+      <li>Destructive verbs are denied by default in the harness; high-risk actions need human approval.</li>
+      <li>The container is minimal, signed, and pinned by digest.</li>
+      <li>The harness and system prompt are in version control and change only by review.</li>
+    </ul>
+    <p style="margin-top:18px"><a href="https://github.com/brace-ai-security/brace/blob/main/CHECKLIST.md"><strong>→ Full BRACE sign-off checklist</strong></a></p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Keep going</h2>
+    <div class="next">
+      <a class="nextcard" href="/guides/">
+        <span class="k">All guides</span>
+        <h3>The five BRACE guides</h3>
+        <p>Build-time, Run-time, Agent, Configuration, Ecosystem.</p>
+      </a>
+      <a class="nextcard" href="/guides/run-time/">
+        <span class="k">Next</span>
+        <h3>Run-time — operating an agent safely</h3>
+        <p>Assume injection sometimes succeeds, and design for what happens next.</p>
+      </a>
+      <a class="nextcard" href="/#controls">
+        <span class="k">Reference</span>
+        <h3>The nine controls</h3>
+        <p>How Build-time fits the whole framework.</p>
+      </a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    The BRACE Framework · <a href="/">braceframework.org</a> · released under <a href="https://github.com/brace-ai-security/brace/blob/main/LICENSE">CC BY 4.0</a> · <a href="https://github.com/brace-ai-security/brace">source on GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resources — the agent-security ecosystem, mapped to BRACE</title>
+<meta name="description" content="A curated, verified map of the autonomous-agent security ecosystem — standards and threat models to compose with, reference implementations to learn from, managed platforms, and open-source building blocks — each tagged to the BRACE concern it serves.">
+<link rel="canonical" href="https://braceframework.org/resources/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BRACE Framework">
+<meta property="og:title" content="Resources — the agent-security ecosystem, mapped to BRACE">
+<meta property="og:description" content="Standards to compose with, reference implementations to learn from, and open-source building blocks to build with — each tagged to the BRACE concern it serves.">
+<meta property="og:url" content="https://braceframework.org/resources/">
+<meta property="og:image" content="https://braceframework.org/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://braceframework.org/og-image.png">
+<style>
+  :root{
+    --ink:#1a1a1a; --muted:#555a63; --primary:#1a4d6e; --accent:#2e8bc0;
+    --tint:#eef5fc; --tint2:#dde9f3; --rule:#c8d4df; --bg:#ffffff;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0; color:var(--ink); background:var(--bg); font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:980px; margin:0 auto; padding:0 24px}
+  .crumb{background:var(--primary); color:#fff; font-size:13px; padding:10px 0}
+  .crumb a{color:#cfe2f1}
+  .crumb .wrap{display:flex; gap:8px; align-items:center}
+  header.hero{background:var(--primary); color:#fff; padding:48px 0 44px}
+  .eyebrow{letter-spacing:.18em; text-transform:uppercase; font-size:12px; opacity:.85; margin:0 0 12px}
+  h1{font-size:42px; line-height:1.06; margin:0 0 14px; font-weight:800; letter-spacing:-.5px}
+  header.hero p.lede{font-size:19px; line-height:1.5; margin:0; max-width:46em; opacity:.96}
+  section{padding:40px 0; border-bottom:1px solid var(--rule)}
+  section:last-of-type{border-bottom:none}
+  h2{font-size:25px; color:var(--primary); margin:0 0 4px; letter-spacing:-.3px}
+  .sub{color:var(--muted); margin:0 0 18px; font-size:15px}
+  .band{font-size:12px; color:var(--muted); margin:26px 0 10px; font-weight:700; text-transform:uppercase; letter-spacing:.09em}
+  .note{background:var(--tint2); border-radius:8px; padding:16px 20px; font-size:14.5px; margin:0 0 8px}
+  .note b{color:var(--primary)}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:14px}
+  .card{border:1px solid var(--rule); border-radius:10px; padding:15px 17px; background:#fff; display:flex; flex-direction:column}
+  .card h3{margin:0 0 5px; font-size:15.5px; color:var(--primary); line-height:1.25}
+  .card p.d{margin:0 0 10px; font-size:13.5px; color:#333; flex:1}
+  .chips{display:flex; flex-wrap:wrap; gap:5px}
+  .tag{font-size:10.5px; font-weight:700; letter-spacing:.03em; padding:2px 8px; border-radius:20px; background:var(--tint); color:var(--primary); border:1px solid var(--tint2)}
+  .flag{font-size:10.5px; font-weight:700; letter-spacing:.03em; padding:2px 8px; border-radius:20px; border:1px solid transparent}
+  .flag.oss{background:#e9f5ee; color:#1f7a4d; border-color:#cbe7d6}
+  .flag.free{background:#e9f5ee; color:#1f7a4d; border-color:#cbe7d6}
+  .flag.comm{background:#eef0f2; color:#555a63; border-color:#dde1e6}
+  .flag.emerging{background:#fff4e0; color:#9a6a12; border-color:#f0dcb6}
+  .flag.legacy{background:#fbecea; color:#b23a2e; border-color:#ecc6c1}
+  .card p.cav{margin:8px 0 0; font-size:12px; color:var(--muted); font-style:italic}
+  footer{padding:36px 0; color:var(--muted); font-size:14px}
+  .backline{margin-top:10px; font-size:14px}
+  @media (max-width:560px){ h1{font-size:32px} }
+</style>
+</head>
+<body>
+
+<div class="crumb">
+  <div class="wrap"><a href="/">BRACE</a> <span aria-hidden="true">›</span> <span>Resources</span></div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">BRACE Resources</p>
+    <h1>The agent-security ecosystem, mapped to BRACE</h1>
+    <p class="lede">BRACE <strong>composes with — it doesn't replace</strong> the work below. Use the standards to know what can go wrong, the reference implementations to see one way to build a control, and the open-source building blocks to actually build it. Each entry is tagged with the BRACE concern it serves.</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="note">
+      <p style="margin:0 0 8px"><b>How to read this.</b> Tags show the BRACE concern an item most relates to: <span class="tag">Build-time</span> <span class="tag">Run-time</span> <span class="tag">Agent</span> <span class="tag">Config</span> <span class="tag">Ecosystem</span> <span class="tag">Observability</span> <span class="tag">Governance</span>. Status flags: <span class="flag oss">Open source</span> <span class="flag comm">Commercial</span> <span class="flag free">Free</span> <span class="flag emerging">Emerging</span> <span class="flag legacy">Deprecating</span>.</p>
+      <p style="margin:0">Curated and verified mid-2026. <b>Listing is not endorsement</b>, and this space moves fast — verify status before you rely on anything. Know something we should add? <a href="https://github.com/brace-ai-security/brace/issues/new?template=get-listed.yml">Suggest a resource</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STANDARDS & THREAT MODELS ============ -->
+<section>
+  <div class="wrap">
+    <h2>Standards &amp; threat models</h2>
+    <p class="sub">Know what can go wrong, and the governance you must answer to. BRACE is the technical control layer beneath these.</p>
+
+    <p class="band">Agentic threat catalogs</p>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/">OWASP Top 10 for Agentic Applications (2026)</a></h3>
+        <p class="d">The flagship ranked risk list (ASI01–ASI10) for autonomous agents — goal misalignment, tool misuse, delegated trust, memory, emergent autonomy. The closest external analog to BRACE's scope.</p>
+        <div class="chips"><span class="tag">Agent</span><span class="tag">Run-time</span><span class="tag">Ecosystem</span><span class="flag free">Free</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://genai.owasp.org/llm-top-10/">OWASP Top 10 for LLM Applications (2025)</a></h3>
+        <p class="d">The ten most critical LLM-app risks — prompt injection, excessive agency, supply chain, output handling, system-prompt leakage. The industry baseline.</p>
+        <div class="chips"><span class="tag">Run-time</span><span class="tag">Build-time</span><span class="flag free">Free</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://genai.owasp.org/resource/multi-agentic-system-threat-modeling-guide-v1-0/">OWASP Multi-Agentic System Threat Modeling Guide</a></h3>
+        <p class="d">Applies the agentic threat taxonomy to multi-agent systems, built around the MAESTRO layered method.</p>
+        <div class="chips"><span class="tag">Ecosystem</span><span class="tag">Agent</span><span class="flag free">Free</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://atlas.mitre.org/">MITRE ATLAS</a></h3>
+        <p class="d">The ATT&amp;CK-style knowledge base of real adversary techniques against AI systems — now with agentic techniques (tool misuse, memory manipulation, orchestration attacks) and case studies.</p>
+        <div class="chips"><span class="tag">Run-time</span><span class="tag">Ecosystem</span><span class="flag free">Free</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://cloudsecurityalliance.org/blog/2025/02/06/agentic-ai-threat-modeling-framework-maestro">CSA MAESTRO</a></h3>
+        <p class="d">Cloud Security Alliance's seven-layer threat-modeling method for agentic systems; adopted within OWASP's MAS guide.</p>
+        <div class="chips"><span class="tag">Governance</span><span class="tag">Ecosystem</span><span class="flag free">Free</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://aivss.owasp.org/">OWASP AIVSS</a></h3>
+        <p class="d">An AI Vulnerability Scoring System extending CVSS with agentic amplifiers (autonomy, tool scope, multi-agent interaction) to quantify agent vulnerabilities.</p>
+        <div class="chips"><span class="tag">Agent</span><span class="tag">Run-time</span><span class="flag free">Free</span><span class="flag emerging">Emerging</span></div>
+        <p class="cav">Pre-1.0 (v0.8, 2026); methodology still settling.</p>
+      </div>
+    </div>
+
+    <p class="band">Governance frameworks &amp; regulation</p>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="https://www.nist.gov/itl/ai-risk-management-framework">NIST AI Risk Management Framework (AI 100-1)</a></h3>
+        <p class="d">The de facto U.S. governance baseline — Govern, Map, Measure, Manage. BRACE sits underneath as the technical control layer.</p>
+        <div class="chips"><span class="tag">Governance</span><span class="tag">Config</span><span class="flag free">Free</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf">NIST Generative AI Profile (AI 600-1)</a></h3>
+        <p class="d">GenAI-specific companion to the AI RMF — 12 risk categories including prompt injection, info-sec, and value-chain accountability.</p>
+        <div class="chips"><span class="tag">Run-time</span><span class="tag">Governance</span><span class="flag free">Free</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://www.iso.org/standard/42001">ISO/IEC 42001:2023</a></h3>
+        <p class="d">The first certifiable AI management-system standard — policy, roles, controls, audit, continual improvement.</p>
+        <div class="chips"><span class="tag">Governance</span><span class="tag">Config</span><span class="flag comm">Paywalled</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://www.iso.org/standard/77304.html">ISO/IEC 23894:2023</a></h3>
+        <p class="d">AI-specific risk-management guidance that operationalizes risk inside an ISO 42001 system.</p>
+        <div class="chips"><span class="tag">Governance</span><span class="flag comm">Paywalled</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://artificialintelligenceact.eu/">EU AI Act (Reg. 2024/1689)</a></h3>
+        <p class="d">The first comprehensive AI regulation — risk-tiered obligations, phased through 2026. (Cite the EUR-Lex text as authoritative; this tracker is convenient but unofficial.)</p>
+        <div class="chips"><span class="tag">Governance</span><span class="tag">Agent</span><span class="flag free">Free</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://saif.google/">Google Secure AI Framework (SAIF) 2.0</a></h3>
+        <p class="d">A practitioner security framework whose 2.0 release adds agent security — human controllers, limited powers, observable actions. Vendor-authored, not a neutral standard.</p>
+        <div class="chips"><span class="tag">Agent</span><span class="tag">Build-time</span><span class="tag">Run-time</span><span class="flag free">Free</span></div>
+      </div>
+    </div>
+
+    <p class="band">Government &amp; multi-stakeholder guidance</p>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="https://www.cisa.gov/news-events/news/cisa-us-and-international-partners-release-guide-secure-adoption-agentic-ai">Five Eyes — Careful Adoption of Agentic AI Services</a></h3>
+        <p class="d">Joint CISA/NSA/UK/CA/AU/NZ guidance (2026) across privilege, design/config, behavioral, structural (multi-agent), and accountability — almost a one-to-one match for BRACE's five concerns.</p>
+        <div class="chips"><span class="tag">Build-time</span><span class="tag">Config</span><span class="tag">Run-time</span><span class="tag">Ecosystem</span><span class="tag">Agent</span><span class="flag free">Free</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://www.nist.gov/caisi/ai-agent-standards-initiative">NIST CAISI — AI Agent Standards Initiative</a></h3>
+        <p class="d">The first U.S. government program dedicated to agentic-AI interoperability and security standards. Mostly RFIs and preliminary drafts so far — track it, expect change.</p>
+        <div class="chips"><span class="tag">Agent</span><span class="tag">Ecosystem</span><span class="flag free">Free</span><span class="flag emerging">Emerging</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://www.coalitionforsecureai.org/">Coalition for Secure AI (CoSAI)</a></h3>
+        <p class="d">An OASIS open project (45+ orgs) shipping agentic secure-design patterns, an agent identity/governance framework, an incident-response framework, and ML-artifact signing guidance.</p>
+        <div class="chips"><span class="tag">Agent</span><span class="tag">Ecosystem</span><span class="tag">Build-time</span><span class="flag free">Free</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REFERENCE IMPLEMENTATIONS ============ -->
+<section>
+  <div class="wrap">
+    <h2>Reference implementations &amp; conformance specs</h2>
+    <p class="sub">Concrete blueprints — one way to actually build a control. BRACE defines what to enforce and in what order; these show how.</p>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="https://github.com/microsoft/agent-governance-toolkit">Microsoft Agent Governance Toolkit</a></h3>
+        <p class="d">RFC-2119 conformance specs + multi-language SDKs for agent governance (MIT, 4k+ stars). Its <a href="/guides/ecosystem/">MCP Security Gateway</a> spec implements BRACE's Ecosystem boundary; sibling specs cover Hypervisor execution control (Build-time), AgentMesh Identity (Agent), Audit-Compliance (Ecosystem), and SRE Governance / kill switches.</p>
+        <div class="chips"><span class="tag">Ecosystem</span><span class="tag">Build-time</span><span class="tag">Agent</span><span class="tag">Config</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://www.anthropic.com/research/trustworthy-agents">Anthropic — Trustworthy Agents framework</a></h3>
+        <p class="d">A four-layer shared-responsibility model (Model / Harness / Tools / Environment) plus five principles. Its treatment of the harness as a governed layer mirrors BRACE's prompt-and-harness-as-artifact.</p>
+        <div class="chips"><span class="tag">Config</span><span class="tag">Build-time</span><span class="tag">Run-time</span><span class="flag free">Free</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MANAGED PLATFORMS ============ -->
+<section>
+  <div class="wrap">
+    <h2>Managed platforms</h2>
+    <p class="sub">Commercial runtimes that ship some controls out of the box. For per-control vendor coverage, see the <a href="https://github.com/brace-ai-security/brace/blob/main/VENDOR-MATRIX.md">vendor matrix</a>.</p>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="https://aws.amazon.com/bedrock/agentcore/">Amazon Bedrock AgentCore</a></h3>
+        <p class="d">Serverless agent runtime on Firecracker microVMs, with Cedar-based policy authz, managed memory, OAuth identity, an MCP/API gateway, and OTel observability. The most BRACE-complete commercial platform.</p>
+        <div class="chips"><span class="tag">Build-time</span><span class="tag">Agent</span><span class="tag">Run-time</span><span class="tag">Ecosystem</span><span class="flag comm">Commercial</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://learn.microsoft.com/en-us/entra/agent-id/what-is-microsoft-entra-agent-id">Microsoft Entra Agent ID</a></h3>
+        <p class="d">A purpose-built agent identity type with parent-child relationships and no standalone credentials — the strongest first-party answer to agent identity &amp; attribution.</p>
+        <div class="chips"><span class="tag">Agent</span><span class="flag comm">Commercial</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://learn.microsoft.com/en-us/azure/foundry/agents/overview">Microsoft Foundry Agent Service</a></h3>
+        <p class="d">Per-agent Entra identity, an AI Gateway enforcing tool-level controls on MCP/OpenAPI tools, plus Purview/Defender governance and private networking.</p>
+        <div class="chips"><span class="tag">Agent</span><span class="tag">Ecosystem</span><span class="tag">Run-time</span><span class="flag comm">Commercial</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://cloud.google.com/products/gemini-enterprise-agent-platform">Google Gemini Enterprise Agent Platform</a></h3>
+        <p class="d">Google's consolidated agent platform with an isolated Agent Sandbox, API-registry tool governance, and Apigee as an MCP bridge applying existing API security.</p>
+        <div class="chips"><span class="tag">Build-time</span><span class="tag">Ecosystem</span><span class="flag comm">Commercial</span></div>
+        <p class="cav">Heavy rebrand churn (ex–Vertex AI Agent Engine / Agentspace) — verify product names.</p>
+      </div>
+      <div class="card">
+        <h3><a href="https://www.anthropic.com/research/trustworthy-agents">Anthropic Managed Agents</a></h3>
+        <p class="d">Enterprise agent governance with IdP connectors and Workload Identity Federation (short-lived scoped credentials instead of static keys).</p>
+        <div class="chips"><span class="tag">Agent</span><span class="tag">Config</span><span class="flag comm">Commercial</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://openai.com/index/introducing-agentkit/">OpenAI AgentKit</a></h3>
+        <p class="d">A Connector Registry centralizing governance of agent→tool connections, plus an open-source <a href="https://github.com/openai/openai-guardrails-python">Guardrails</a> layer (PII masking, jailbreak detection).</p>
+        <div class="chips"><span class="tag">Ecosystem</span><span class="tag">Run-time</span><span class="flag comm">Commercial</span><span class="flag legacy">Deprecating</span></div>
+        <p class="cav">Agent Builder + Evals sunset after 2026-11-30; Guardrails/ChatKit persist.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ OPEN-SOURCE BUILDING BLOCKS ============ -->
+<section>
+  <div class="wrap">
+    <h2>Open-source building blocks</h2>
+    <p class="sub">The primitives you assemble BRACE-level controls from.</p>
+
+    <p class="band">Identity &amp; attribution → Agent</p>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="https://spiffe.io/">SPIFFE / SPIRE</a></h3>
+        <p class="d">CNCF-graduated workload identity — short-lived cryptographic SVIDs so agents authenticate without long-lived secrets. The foundation an agent identity chains from.</p>
+        <div class="chips"><span class="tag">Agent</span><span class="tag">Observability</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://datatracker.ietf.org/doc/draft-klrc-aiagent-auth/">Agent identity standards (IETF / NIST / OAP)</a></h3>
+        <p class="d">The 2025–2026 frontier of agent auth: an IETF agent-auth draft, NIST's agent-identity concept paper, and the Open Agent Passport spec. Worth tracking; none ratified yet.</p>
+        <div class="chips"><span class="tag">Agent</span><span class="flag free">Free</span><span class="flag emerging">Emerging</span></div>
+      </div>
+    </div>
+
+    <p class="band">Authorization → Config / Agent / Ecosystem</p>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="https://github.com/cedar-policy/cedar">Cedar</a></h3>
+        <p class="d">AWS's formally-verified, declarative authorization language/engine — the policy layer behind AgentCore Policy, usable standalone for capability-scoped tool gating.</p>
+        <div class="chips"><span class="tag">Config</span><span class="tag">Ecosystem</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/openfga/openfga">OpenFGA</a></h3>
+        <p class="d">CNCF relationship-based (Zanzibar-style) authorization — well suited to agent delegation chains and "who can act on whose behalf."</p>
+        <div class="chips"><span class="tag">Agent</span><span class="tag">Config</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/open-policy-agent/opa">Open Policy Agent (OPA)</a></h3>
+        <p class="d">The CNCF-graduated general-purpose policy engine (Rego) for decoupled, context-aware authorization across gateways and tool calls.</p>
+        <div class="chips"><span class="tag">Config</span><span class="tag">Run-time</span><span class="flag oss">Open source</span></div>
+      </div>
+    </div>
+
+    <p class="band">Observability → the three BRACE observability requirements</p>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/">OpenTelemetry GenAI semantic conventions</a></h3>
+        <p class="d">The standard <code>gen_ai.*</code> / agent span conventions for tracing LLM calls, agent steps, and tool invocations. Directly underpins all three BRACE observability requirements.</p>
+        <div class="chips"><span class="tag">Observability</span><span class="tag">Agent</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/langfuse/langfuse">Langfuse</a></h3>
+        <p class="d">Widely-adopted open-source LLM/agent tracing, evals, and prompt management; ingests OTel GenAI. (Custom license: MIT core + commercial EE.)</p>
+        <div class="chips"><span class="tag">Observability</span><span class="tag">Ecosystem</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/Arize-ai/phoenix">Arize Phoenix</a></h3>
+        <p class="d">Self-hostable, vendor-neutral tracing + evals on OpenTelemetry/OpenInference; runs locally, strong span-tree view for sub-agent provenance. (Elastic License v2 core.)</p>
+        <div class="chips"><span class="tag">Observability</span><span class="tag">Run-time</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/traceloop/openllmetry">OpenLLMetry (Traceloop)</a></h3>
+        <p class="d">OpenTelemetry-native, non-intrusive instrumentation for LLM apps; exports to any OTel backend. The cleanest "pure OTel" option.</p>
+        <div class="chips"><span class="tag">Observability</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/Helicone/helicone">Helicone</a></h3>
+        <p class="d">Open-source LLM observability plus a Rust AI gateway capturing cost/latency/traces — a natural place to log context size and audit tool calls.</p>
+        <div class="chips"><span class="tag">Observability</span><span class="tag">Config</span><span class="flag oss">Open source</span></div>
+      </div>
+    </div>
+
+    <p class="band">Sandboxing &amp; isolation → Build-time</p>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="https://github.com/firecracker-microvm/firecracker">Firecracker</a></h3>
+        <p class="d">AWS's Rust microVM monitor — hardware-enforced (KVM) isolation with ~125ms boot. The strongest isolation tier for untrusted agent code.</p>
+        <div class="chips"><span class="tag">Build-time</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/google/gvisor">gVisor</a></h3>
+        <p class="d">Google's user-space application kernel — stronger than container namespaces, lighter than a VM. Powers several agent-sandbox offerings.</p>
+        <div class="chips"><span class="tag">Build-time</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/e2b-dev/E2B">E2B</a></h3>
+        <p class="d">Open-source infrastructure to run AI-generated code in Firecracker-backed microVM sandboxes (&lt;200ms start), with Python/JS SDKs.</p>
+        <div class="chips"><span class="tag">Build-time</span><span class="tag">Run-time</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/daytonaio/daytona">Daytona</a></h3>
+        <p class="d">Elastic infrastructure for running AI-generated code with sub-90ms cold starts and lifecycle automation. (AGPL-3.0 — note copyleft for embedding.)</p>
+        <div class="chips"><span class="tag">Build-time</span><span class="tag">Config</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://modal.com/docs/guide/sandbox">Modal Sandboxes</a></h3>
+        <p class="d">gVisor-isolated containers for untrusted agent code with deny-by-default inbound networking and CIDR allowlists. (Hosted service; SDK is open source.)</p>
+        <div class="chips"><span class="tag">Build-time</span><span class="tag">Config</span><span class="flag comm">Commercial</span></div>
+      </div>
+    </div>
+
+    <p class="band">Guardrails &amp; runtime defense → Run-time</p>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="https://github.com/NVIDIA-NeMo/Guardrails">NeMo Guardrails</a></h3>
+        <p class="d">NVIDIA's programmable input/output rails — content safety, jailbreak detection, topic control, PII — for LLM/agent apps.</p>
+        <div class="chips"><span class="tag">Run-time</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/guardrails-ai/guardrails">Guardrails AI</a></h3>
+        <p class="d">A framework for composable input/output validators (toxicity, PII, hallucination, jailbreak) via the Guardrails Hub.</p>
+        <div class="chips"><span class="tag">Run-time</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/meta-llama/PurpleLlama">Llama Guard / Prompt Guard</a></h3>
+        <p class="d">Meta's classifier models: Llama Guard 4 for input/output content safety, Prompt Guard 2 for injection/jailbreak detection. (Llama community license.)</p>
+        <div class="chips"><span class="tag">Run-time</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/protectai/llm-guard">LLM Guard</a></h3>
+        <p class="d">A toolkit of input/output scanners to detect, redact, and sanitize prompts/responses (injection, PII, secrets, toxicity). (MIT; community-maintained post-acquisition.)</p>
+        <div class="chips"><span class="tag">Run-time</span><span class="flag oss">Open source</span></div>
+      </div>
+    </div>
+
+    <p class="band">Red-team &amp; testing → verify your Run-time defenses</p>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="https://github.com/NVIDIA/garak">garak</a></h3>
+        <p class="d">"Nessus for LLMs" — 50+ probes for prompt injection, jailbreaks, and data leakage, with multi-turn and agent/tool probes.</p>
+        <div class="chips"><span class="tag">Run-time</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/microsoft/PyRIT">PyRIT</a></h3>
+        <p class="d">Microsoft's red-team orchestration framework — automates multi-turn adversarial attacks against models and agents.</p>
+        <div class="chips"><span class="tag">Run-time</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/protectai/modelscan">ModelScan</a></h3>
+        <p class="d">Scans serialized model files (pickle, H5, SavedModel) for unsafe code / serialization attacks before load.</p>
+        <div class="chips"><span class="tag">Ecosystem</span><span class="tag">Build-time</span><span class="flag oss">Open source</span></div>
+      </div>
+    </div>
+
+    <p class="band">MCP &amp; tool supply-chain security → Ecosystem</p>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="https://github.com/snyk/agent-scan">Snyk Agent Scan (mcp-scan)</a></h3>
+        <p class="d">The flagship MCP scanner (ex-Invariant Labs, who disclosed tool poisoning) — detects tool poisoning, injection, tool-shadowing, and rug pulls across trust boundaries.</p>
+        <div class="chips"><span class="tag">Ecosystem</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/cisco-ai-defense/mcp-scanner">Cisco MCP Scanner</a></h3>
+        <p class="d">Discovers MCP tools and scans descriptions/schemas with YARA rules for injection, tool poisoning, credential harvesting, and code execution.</p>
+        <div class="chips"><span class="tag">Ecosystem</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/splx-ai/agentic-radar">Agentic Radar</a></h3>
+        <p class="d">Static scanner for agentic workflows (LangGraph, CrewAI, OpenAI Agents) — maps tools, detects MCP servers, and surfaces known vulnerabilities.</p>
+        <div class="chips"><span class="tag">Ecosystem</span><span class="tag">Run-time</span><span class="flag oss">Open source</span></div>
+      </div>
+    </div>
+
+    <p class="band">Memory, signing &amp; incident knowledge</p>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="https://github.com/mem0ai/mem0">Mem0</a></h3>
+        <p class="d">A widely-adopted agent memory layer (vector + graph + KV) with per-user keys and a request audit log — useful toward memory provenance (the security is still your app's job).</p>
+        <div class="chips"><span class="tag">Run-time</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/sigstore/cosign">Sigstore / cosign</a></h3>
+        <p class="d">Keyless artifact/container signing via OIDC identity and a transparency log — verifiable provenance for signed agent builds without long-lived keys.</p>
+        <div class="chips"><span class="tag">Build-time</span><span class="tag">Ecosystem</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://slsa.dev/">SLSA</a></h3>
+        <p class="d">Supply-chain Levels for Software Artifacts — incrementally adoptable build-integrity levels (provenance → verified → hermetic). Pairs with cosign.</p>
+        <div class="chips"><span class="tag">Build-time</span><span class="flag oss">Open source</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://incidentdatabase.ai/">AI Incident Database (AIID)</a></h3>
+        <p class="d">A long-running index of real-world AI harms (5,000+ reports) — the threat priors behind "what actually goes wrong."</p>
+        <div class="chips"><span class="tag">Ecosystem</span><span class="flag free">Free</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://avidml.org/">AI Vulnerability Database (AVID)</a></h3>
+        <p class="d">An open knowledge base of GPAI/agent failure modes — supply-chain CVEs, red-team results, and crowdsourced agent failures.</p>
+        <div class="chips"><span class="tag">Ecosystem</span><span class="flag oss">Open source</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMMERCIAL ============ -->
+<section>
+  <div class="wrap">
+    <h2>Commercial security products</h2>
+    <p class="sub">Notable commercial offerings, clearly flagged. Several pioneered techniques now common across the field.</p>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="https://www.lakera.ai/">Lakera Guard</a> · <a href="https://gandalf.lakera.ai/">Gandalf</a></h3>
+        <p class="d">Runtime prompt-injection/threat-detection API (now part of Check Point). <b>Gandalf</b> is a free public prompt-injection game — a great way to build injection intuition.</p>
+        <div class="chips"><span class="tag">Run-time</span><span class="flag comm">Commercial</span><span class="flag free">Gandalf free</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://www.cisco.com/site/us/en/products/security/ai-defense/index.html">Cisco AI Defense</a></h3>
+        <p class="d">End-to-end model/app/agent/MCP protection (ex–Robust Intelligence) — AI firewall, runtime protection, algorithmic red teaming, MCP catalog. Its <a href="https://github.com/cisco-ai-defense/mcp-scanner">MCP Scanner</a> is open source.</p>
+        <div class="chips"><span class="tag">Run-time</span><span class="tag">Ecosystem</span><span class="flag comm">Commercial</span></div>
+      </div>
+    </div>
+    <p class="backline"><a href="/guides/">← Back to the guides</a> &nbsp;·&nbsp; <a href="/">braceframework.org</a></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    The BRACE Framework · <a href="/">braceframework.org</a> · released under <a href="https://github.com/brace-ai-security/brace/blob/main/LICENSE">CC BY 4.0</a> · <a href="https://github.com/brace-ai-security/brace">source on GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>

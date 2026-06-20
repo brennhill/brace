@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The agent is a configuration — BRACE Configuration guide</title>
+<meta name="description" content="A practical guide to configuration security for AI agents: the agent is a configuration, not the code that shipped. Treat the system prompt and harness as versioned, diff-reviewed artifacts; freeze and pin the config; detect drift at agent granularity.">
+<link rel="canonical" href="https://braceframework.org/guides/configuration/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="BRACE Framework">
+<meta property="og:title" content="The agent is a configuration — the BRACE Configuration guide">
+<meta property="og:description" content="There's no pull request to review for a running agent. So what do you review? Versioning, diffing, and freezing the prompt and harness, and detecting drift at agent granularity.">
+<meta property="og:url" content="https://braceframework.org/guides/configuration/">
+<meta property="og:image" content="https://braceframework.org/og-configuration.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="BRACE Configuration security guide">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The agent is a configuration — the BRACE Configuration guide">
+<meta name="twitter:description" content="There's no pull request to review for an autonomous agent. So what do you review? Principles, reasons, and illustrations.">
+<meta name="twitter:image" content="https://braceframework.org/og-configuration.png">
+<style>
+  :root{
+    --ink:#1a1a1a; --muted:#555a63; --primary:#1a4d6e; --accent:#2e8bc0;
+    --tint:#eef5fc; --tint2:#dde9f3; --rule:#c8d4df; --bg:#ffffff;
+    --good:#1f7a4d; --good-bg:#e9f5ee; --good-rule:#aed8bf;
+    --bad:#b23a2e; --bad-bg:#fbecea; --bad-rule:#e3b4ac;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0; color:var(--ink); background:var(--bg); font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:820px; margin:0 auto; padding:0 24px}
+  .crumb{background:var(--primary); color:#fff; font-size:13px; padding:10px 0}
+  .crumb a{color:#cfe2f1}
+  .crumb .wrap{display:flex; gap:8px; align-items:center}
+  header.hero{background:var(--primary); color:#fff; padding:48px 0 44px}
+  .eyebrow{letter-spacing:.18em; text-transform:uppercase; font-size:12px; opacity:.85; margin:0 0 12px}
+  h1{font-size:42px; line-height:1.06; margin:0 0 14px; font-weight:800; letter-spacing:-.5px}
+  header.hero p.lede{font-size:19px; line-height:1.5; margin:0; max-width:42em; opacity:.96}
+  main{padding:8px 0 8px}
+  section{padding:34px 0; border-bottom:1px solid var(--rule)}
+  section:last-of-type{border-bottom:none}
+  h2{font-size:25px; color:var(--primary); margin:30px 0 6px; letter-spacing:-.3px}
+  h3{font-size:18px; color:var(--primary); margin:0 0 6px}
+  p{margin:12px 0}
+  .idea{background:var(--tint); border-left:4px solid var(--primary); padding:18px 22px; border-radius:0 6px 6px 0; font-size:16px; margin:10px 0}
+  .toc{background:var(--tint2); border-radius:8px; padding:16px 20px; font-size:14px; margin:18px 0 0}
+  .toc b{display:block; color:var(--primary); text-transform:uppercase; letter-spacing:.08em; font-size:12px; margin-bottom:8px}
+  .toc ol{margin:0; padding-left:1.3em}
+  .toc li{margin:5px 0}
+  .principle{border:1px solid var(--rule); border-radius:12px; padding:6px 24px 22px; margin:26px 0}
+  .pnum{display:inline-block; background:var(--accent); color:#fff; font-size:12px; font-weight:700; letter-spacing:.06em; padding:4px 10px; border-radius:0 0 8px 8px; margin-left:-1px}
+  .statement{font-size:17px; font-weight:600; color:#15384f; margin:14px 0 4px}
+  .why{background:var(--tint); border-left:4px solid var(--accent); padding:14px 18px; border-radius:0 6px 6px 0; margin:14px 0; font-size:15px}
+  .why b.k{color:var(--primary)}
+  .eg{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0}
+  .col{border-radius:8px; padding:14px 16px; font-size:14px}
+  .col .tag{font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin-bottom:6px}
+  .col.bad{background:var(--bad-bg); border:1px solid var(--bad-rule)}
+  .col.bad .tag{color:var(--bad)}
+  .col.good{background:var(--good-bg); border:1px solid var(--good-rule)}
+  .col.good .tag{color:var(--good)}
+  .col code{display:block; background:#fff; border:1px solid var(--rule); border-radius:5px; padding:8px 10px; margin-top:8px; font-size:12.5px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:#243b49; white-space:pre-wrap; word-break:break-word}
+  figure{margin:22px 0 6px}
+  figure svg{width:100%; height:auto; display:block; border:1px solid var(--rule); border-radius:10px; background:#fff}
+  figcaption{color:var(--muted); font-size:13px; margin-top:8px; text-align:center}
+  .rule-of-thumb{font-size:14px; color:#333; background:var(--tint2); border-radius:6px; padding:12px 16px; margin:14px 0 0}
+  .rule-of-thumb b{color:var(--primary)}
+  .worked{background:var(--tint); border-radius:10px; padding:18px 22px; margin:14px 0}
+  .worked ul{margin:10px 0 0; padding-left:1.1em}
+  .worked li{margin:7px 0; font-size:15px}
+  .worked .punch{margin-top:14px; font-weight:600; color:#15384f}
+  ul.check{list-style:none; padding:0; margin:14px 0 0}
+  ul.check li{padding:8px 0 8px 30px; position:relative; border-bottom:1px solid var(--rule); font-size:15px}
+  ul.check li:before{content:"\2713"; position:absolute; left:4px; top:8px; color:var(--accent); font-weight:700}
+  code.inl{background:var(--tint2); border-radius:4px; padding:1px 6px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13.5px; color:#243b49}
+  .next{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:8px}
+  .nextcard{border:1px solid var(--rule); border-radius:10px; padding:16px 18px; display:block}
+  .nextcard .k{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:700}
+  .nextcard h3{margin:4px 0 4px; font-size:16px}
+  .nextcard p{margin:0; font-size:13.5px; color:#333}
+  footer{padding:36px 0; color:var(--muted); font-size:14px}
+  @media (max-width:620px){ h1{font-size:32px} .eg{grid-template-columns:1fr} }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "The agent is a configuration",
+  "description": "An autonomous agent is a configuration, not the code that shipped. Version and diff-review the prompt and harness, freeze and pin the config, and detect drift at agent granularity.",
+  "image": "https://braceframework.org/og-configuration.png",
+  "author": { "@type": "Organization", "name": "The BRACE Project", "url": "https://braceframework.org/" },
+  "publisher": { "@type": "Organization", "name": "BRACE Framework", "logo": { "@type": "ImageObject", "url": "https://braceframework.org/apple-touch-icon.png" } },
+  "datePublished": "2026-06-23",
+  "dateModified": "2026-06-23",
+  "mainEntityOfPage": "https://braceframework.org/guides/configuration/",
+  "isPartOf": { "@type": "WebSite", "name": "BRACE Framework", "url": "https://braceframework.org/" }
+}
+</script>
+</head>
+<body>
+
+<div class="crumb">
+  <div class="wrap">
+    <a href="/">BRACE</a> <span aria-hidden="true">›</span>
+    <a href="/guides/">Guides</a> <span aria-hidden="true">›</span>
+    <span>Configuration</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">BRACE Guide · Configuration</p>
+    <h1>The agent is a configuration</h1>
+    <p class="lede">There's no pull request to review for a running agent. The agent isn't the code you shipped. It's a <strong>configuration</strong> of infrastructure: a container, a harness, a system prompt, a set of tools, memory, an identity, a network path. Two agents built from the same model behave very differently depending on those parts. So the thing you review and version is not the code; it's the configuration.</p>
+  </div>
+</header>
+
+<main>
+<section>
+  <div class="wrap">
+    <div class="idea">
+      Because the security-relevant artifact is the configuration, the disciplines you already use for code — version control, diff review, change approval, drift detection — have to move to the configuration layer. A one-line change to a system prompt can remove a guardrail with no pull request, no review, and no record. This guide covers the Configuration concern: the harness and system prompt as reviewed artifacts, the configuration frozen and pinned into identity, and drift detection at agent granularity.
+    </div>
+    <div class="toc">
+      <b>The five principles</b>
+      <ol>
+        <li><a href="#c1">The agent is a configuration, not the code that shipped</a></li>
+        <li><a href="#c2">Treat the system prompt and harness as versioned, diff-reviewed artifacts</a></li>
+        <li><a href="#c3">Freeze the configuration per release and pin it into identity</a></li>
+        <li><a href="#c4">Detect drift at agent granularity</a></li>
+        <li><a href="#c5">Capture the config-adjacent observables</a></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="c1">
+  <div class="wrap">
+    <div class="principle">
+      <span class="pnum">PRINCIPLE 1</span>
+      <h2 style="margin-top:14px">The agent is a configuration, not the code that shipped</h2>
+      <p class="statement">The security-relevant artifact is the running configuration — container, harness, system prompt, tools, memory, identity, network — not the application code. Secure the configuration, because that's what determines behavior.</p>
+      <div class="why">
+        <p style="margin:0"><b class="k">Why it matters.</b> Take one model and wrap it two different ways, with a different system prompt, different tools, and different limits, and you get two agents that behave nothing alike. No code diff captures that difference, so a security review aimed at the code misses the real attack surface. Once you see the agent as a configuration, it is clear what to protect: the parts that decide what the agent is and does.</p>
+      </div>
+      <figure>
+        <svg viewBox="0 0 980 300" role="img" aria-label="The same model wrapped in two different configurations produces two different behaviors">
+          <rect x="390" y="30" width="200" height="56" rx="10" fill="#1a4d6e"/>
+          <text x="490" y="54" font-family="Helvetica,Arial,sans-serif" font-size="14" font-weight="bold" fill="#fff" text-anchor="middle">Same model</text>
+          <text x="490" y="73" font-family="Helvetica,Arial,sans-serif" font-size="11" fill="#bcd6e6" text-anchor="middle">identical weights</text>
+          <path d="M440 86 L250 132" stroke="#1a4d6e" stroke-width="2" fill="none" marker-end="url(#c1n)"/>
+          <path d="M540 86 L730 132" stroke="#1a4d6e" stroke-width="2" fill="none" marker-end="url(#c1n)"/>
+          <rect x="40" y="136" width="410" height="90" rx="10" fill="#e9f5ee" stroke="#aed8bf"/>
+          <text x="60" y="162" font-family="Helvetica,Arial,sans-serif" font-size="13" font-weight="bold" fill="#1f5b3c">Config A</text>
+          <text x="60" y="184" font-family="ui-monospace,Menlo,monospace" font-size="11.5" fill="#1f5b3c">prompt: "be terse, read-only" · tools: [read]</text>
+          <text x="60" y="206" font-family="Helvetica,Arial,sans-serif" font-size="12.5" fill="#1f5b3c">→ narrow, low-risk behavior</text>
+          <rect x="530" y="136" width="410" height="90" rx="10" fill="#fbecea" stroke="#e3b4ac"/>
+          <text x="550" y="162" font-family="Helvetica,Arial,sans-serif" font-size="13" font-weight="bold" fill="#8f2e25">Config B</text>
+          <text x="550" y="184" font-family="ui-monospace,Menlo,monospace" font-size="11.5" fill="#8f2e25">prompt: "act autonomously" · tools: [shell, write, delete]</text>
+          <text x="550" y="206" font-family="Helvetica,Arial,sans-serif" font-size="12.5" fill="#8f2e25">→ broad, high-risk behavior</text>
+          <text x="40" y="266" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#555a63">The model is identical. The configuration is the behavior — and the attack surface.</text>
+          <defs><marker id="c1n" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#1a4d6e"/></marker></defs>
+        </svg>
+        <figcaption>Same weights, two configurations, two very different agents. Securing the code can't tell them apart; securing the configuration can.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="c2">
+  <div class="wrap">
+    <div class="principle">
+      <span class="pnum">PRINCIPLE 2</span>
+      <h2 style="margin-top:14px">Treat the system prompt and harness as versioned, diff-reviewed artifacts</h2>
+      <p class="statement">Put the system prompt and harness in version control and change them only through review — the same discipline you apply to code. They should not be editable in production by anyone who feels like it.</p>
+      <div class="why">
+        <p style="margin:0"><b class="k">Why it matters.</b> The system prompt is policy. An editable-in-production prompt is an unreviewed, unattributed code path with full influence over the agent, and a one-line change can remove a guardrail or redirect the agent's goals. Several real incidents come down to exactly this: a prompt or rules file treated as runtime configuration that anyone could edit, with no diff and no history. Reviewing changes the way you review code is what makes the rest of your controls trustworthy.</p>
+      </div>
+      <figure>
+        <svg viewBox="0 0 980 300" role="img" aria-label="A system prompt as an editable runtime config versus a versioned, diff-reviewed artifact">
+          <rect x="20" y="20" width="450" height="260" rx="12" fill="#fbecea" stroke="#e3b4ac"/>
+          <text x="44" y="52" font-family="Helvetica,Arial,sans-serif" font-size="17" font-weight="bold" fill="#b23a2e">Editable runtime config</text>
+          <rect x="44" y="72" width="402" height="120" rx="8" fill="#fff" stroke="#d9534f"/>
+          <text x="60" y="96" font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#8f2e25">Ops dashboard · "System prompt" — editable</text>
+          <rect x="60" y="108" width="370" height="64" rx="5" fill="#fdf3f1" stroke="#e3b4ac"/>
+          <text x="74" y="132" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#8f2e25">You are a helpful agent. [ Save ]</text>
+          <text x="74" y="156" font-family="Helvetica,Arial,sans-serif" font-size="11" fill="#8f2e25">↳ anyone can edit · live · now</text>
+          <text x="44" y="224" font-family="Helvetica,Arial,sans-serif" font-size="12.5" fill="#8f2e25">No diff. No review. No history. No attribution.</text>
+
+          <rect x="510" y="20" width="450" height="260" rx="12" fill="#e9f5ee" stroke="#aed8bf"/>
+          <text x="534" y="52" font-family="Helvetica,Arial,sans-serif" font-size="17" font-weight="bold" fill="#1f7a4d">Versioned, reviewed artifact</text>
+          <rect x="534" y="72" width="402" height="120" rx="8" fill="#fff" stroke="#1f7a4d"/>
+          <text x="550" y="96" font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#1f5b3c">PR #421 · system-prompt.md</text>
+          <text x="550" y="124" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#b23a2e">- never run destructive commands</text>
+          <text x="550" y="146" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#1f7a4d">+ never run destructive commands without approval</text>
+          <text x="550" y="172" font-family="Helvetica,Arial,sans-serif" font-size="11" fill="#1f5b3c">reviewed · approved · hash-pinned at deploy</text>
+          <text x="534" y="224" font-family="Helvetica,Arial,sans-serif" font-size="12.5" fill="#1f5b3c">Every change is a diff someone approved, with a record.</text>
+        </svg>
+        <figcaption>If the prompt can be edited live with no diff or review, it is an unreviewed code path. In version control, every change is a reviewed diff with history and attribution.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="c3">
+  <div class="wrap">
+    <div class="principle">
+      <span class="pnum">PRINCIPLE 3</span>
+      <h2 style="margin-top:14px">Freeze the configuration per release and pin it into identity</h2>
+      <p class="statement">Freeze the full configuration for a release so "what's running" is a known, reproducible thing — and pin its hash into the agent's identity, as the agent-type-id.</p>
+      <div class="why">
+        <p style="margin:0"><b class="k">Why it matters.</b> Freezing turns the configuration from a moving target into a fixed, reproducible reference. Pinning that frozen configuration's hash into identity (see the <a href="/guides/agent/">Agent guide</a>) makes any later change visible in your logs as a new id rather than a silent edit. Together they let you state plainly what configuration produced a given behavior — the precondition for both drift detection and attribution.</p>
+      </div>
+      <div class="eg">
+        <div class="col bad">
+          <div class="tag">✗ Floating config</div>
+          The prompt, tool list, and image tags can each change independently between deploys; "what's running" is whatever was last touched.
+        </div>
+        <div class="col good">
+          <div class="tag">✓ Frozen &amp; pinned</div>
+          A release freezes the whole configuration; its hash is the agent-type-id, so any change is a new, visible build.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="c4">
+  <div class="wrap">
+    <div class="principle">
+      <span class="pnum">PRINCIPLE 4</span>
+      <h2 style="margin-top:14px">Detect drift at agent granularity</h2>
+      <p class="statement">Watch for drift on the things that define an agent build — container images, harness configs, MCP server lists, system prompts, and per-agent network policies — not just at the host or cluster level.</p>
+      <div class="why">
+        <p style="margin:0"><b class="k">Why it matters.</b> Configuration drifts: someone hot-patches a prompt, a tool list gains a server, an egress rule loosens "just for debugging." Infrastructure-as-code drift detection is a well-established discipline that compares running state against a declared baseline, but it is usually applied at host granularity, which is exactly where these agent-level changes hide. Applying the same comparison per agent build is what surfaces them.</p>
+      </div>
+      <figure>
+        <svg viewBox="0 0 980 300" role="img" aria-label="Comparing a pinned baseline configuration against the running configuration, with per-artifact drift flagged">
+          <text x="40" y="40" font-family="Helvetica,Arial,sans-serif" font-size="15" font-weight="bold" fill="#1a4d6e">Baseline (pinned) vs. running — compared per artifact</text>
+          <rect x="40" y="56" width="420" height="210" rx="10" fill="#e9f5ee" stroke="#aed8bf"/>
+          <text x="60" y="84" font-family="Helvetica,Arial,sans-serif" font-size="13" font-weight="bold" fill="#1f5b3c">Baseline (agent-type-id 9f2b)</text>
+          <g font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#1f5b3c">
+            <text x="60" y="118">image   @sha256:ab12</text>
+            <text x="60" y="146">harness  v3</text>
+            <text x="60" y="174">prompt   #ab12</text>
+            <text x="60" y="202">mcp      [billing, docs]</text>
+            <text x="60" y="230">egress   [api.acme]</text>
+          </g>
+          <rect x="520" y="56" width="420" height="210" rx="10" fill="#fbecea" stroke="#e3b4ac"/>
+          <text x="540" y="84" font-family="Helvetica,Arial,sans-serif" font-size="13" font-weight="bold" fill="#8f2e25">Running now</text>
+          <g font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#1f5b3c">
+            <text x="540" y="118">image   @sha256:ab12</text>
+            <text x="540" y="146">harness  v3</text>
+          </g>
+          <g font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#b23a2e">
+            <text x="540" y="174">prompt   #9f8e        ✗ changed</text>
+            <text x="540" y="202">mcp      [billing, docs, x]  ✗ added</text>
+            <text x="540" y="230">egress   [api.acme, *]       ✗ loosened</text>
+          </g>
+          <text x="40" y="290" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#b23a2e">Drift detected at agent granularity — three changes no host-level check would flag.</text>
+        </svg>
+        <figcaption>The same drift detection you run on infrastructure, applied to the artifacts that define an agent build — so a hot-patched prompt or a loosened egress rule shows up.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="c5">
+  <div class="wrap">
+    <div class="principle">
+      <span class="pnum">PRINCIPLE 5</span>
+      <h2 style="margin-top:14px">Capture the config-adjacent observables</h2>
+      <p class="statement">The record of what configuration actually ran is incomplete without two more things: the decision-time context size and the prompt a parent passed to a sub-agent.</p>
+      <div class="why">
+        <p style="margin:0"><b class="k">Why it matters.</b> The configuration that produced a behavior is more than the static files. How full the context was when a decision was made, and what a parent told a sub-agent at run time, both shape what happened — and neither is in the frozen artifacts. Capturing them (covered in the <a href="/guides/run-time/">Run-time</a> and <a href="/guides/agent/">Agent</a> guides) completes the picture, so "what ran" accounts for the dynamic inputs as well as the pinned ones.</p>
+      </div>
+      <div class="eg">
+        <div class="col bad">
+          <div class="tag">✗ Static only</div>
+          You can reproduce the files but not the run — no record of context size at each decision or the prompt a parent handed down.
+        </div>
+        <div class="col good">
+          <div class="tag">✓ Full picture</div>
+          Decision-time context size and parent-passed prompts are logged alongside the pinned configuration.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Worked example — a coding agent whose behavior is its config</h2>
+    <p>An internal coding agent with a fixed model, where behavior is entirely a function of its harness, prompt, rules files, and tools. Configuration applied.</p>
+    <div class="worked">
+      <ul>
+        <li><b>Config as the artifact (P1):</b> the security review targets the harness, system prompt, rules files, MCP config, and tool list — not the application code.</li>
+        <li><b>Reviewed artifacts (P2):</b> the system prompt and rules files live in version control and change only through reviewed pull requests.</li>
+        <li><b>Frozen &amp; pinned (P3):</b> each release freezes the whole configuration; its hash is the agent-type-id.</li>
+        <li><b>Drift detection (P4):</b> a check compares the running prompt, MCP list, and egress policy against the pinned baseline and alerts on any difference.</li>
+        <li><b>Observables (P5):</b> decision-time context size and parent-passed prompts are logged so a run can be reconstructed, not just the files.</li>
+      </ul>
+      <p class="punch">A prompt edited directly in production shows up as drift against the pinned baseline within minutes, instead of quietly changing how every developer's agent behaves.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Configuration go / no-go</h2>
+    <p style="color:var(--muted)">A short gate before you ship. The full version lives in the BRACE sign-off checklist.</p>
+    <ul class="check">
+      <li>The security review targets the configuration — container, harness, prompt, tools, memory, identity, network — not just the code.</li>
+      <li>The system prompt and harness are in version control and change only through review.</li>
+      <li>Each release freezes the full configuration, and its hash is pinned as the agent-type-id.</li>
+      <li>Drift detection runs at agent granularity: images, harness, MCP lists, prompts, and per-agent egress.</li>
+      <li>Decision-time context size and parent-passed prompts are logged alongside the pinned configuration.</li>
+    </ul>
+    <p style="margin-top:18px"><a href="https://github.com/brace-ai-security/brace/blob/main/CHECKLIST.md"><strong>→ Full BRACE sign-off checklist</strong></a></p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Keep going</h2>
+    <div class="next">
+      <a class="nextcard" href="/guides/">
+        <span class="k">All guides</span>
+        <h3>The five BRACE guides</h3>
+        <p>Build-time, Run-time, Agent, Configuration, Ecosystem.</p>
+      </a>
+      <a class="nextcard" href="/guides/agent/">
+        <span class="k">Pairs with</span>
+        <h3>Agent — identity &amp; attribution</h3>
+        <p>The identity the frozen config is pinned into.</p>
+      </a>
+      <a class="nextcard" href="/#controls">
+        <span class="k">Reference</span>
+        <h3>The nine controls</h3>
+        <p>How Configuration fits the whole framework.</p>
+      </a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    The BRACE Framework · <a href="/">braceframework.org</a> · released under <a href="https://github.com/brace-ai-security/brace/blob/main/LICENSE">CC BY 4.0</a> · <a href="https://github.com/brace-ai-security/brace">source on GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>

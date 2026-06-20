@@ -1,0 +1,51 @@
+name: Get listed (adopter / assessor / partner)
+description: Add your team, deployment, or firm to the BRACE Framework showcase.
+title: "[Get listed] "
+labels: ["showcase"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Using the BRACE Framework — in production, in client assessments, or in a product? Tell us and we'll feature you in [ADOPTERS.md](https://github.com/brace-ai-security/brace/blob/main/ADOPTERS.md).
+
+        Issues are **public** — don't paste anything you don't want visible.
+  - type: input
+    id: org
+    attributes:
+      label: Organization or team name
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: How are you using BRACE?
+      options:
+        - Deployment / case study — we use BRACE on our own agents
+        - Assessor / consultancy — we use BRACE in client assessments
+        - Product mapping — our product implements BRACE controls
+    validations:
+      required: true
+  - type: textarea
+    id: detail
+    attributes:
+      label: What are you doing with it?
+      description: A few sentences — which controls or tiers, what stack, and what you'd like featured.
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Link
+      description: A website, write-up, or product page we can link to.
+  - type: input
+    id: contact
+    attributes:
+      label: Contact (optional)
+      description: A business email or LinkedIn we can reach you at. Public — use a business channel, not personal details.
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Consent
+      options:
+        - label: I'm OK with this listing being public, under CC BY 4.0.
+          required: true
