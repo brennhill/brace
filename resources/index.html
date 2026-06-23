@@ -200,6 +200,46 @@
   </div>
 </section>
 
+<!-- ============ HUMAN-IN-THE-LOOP & PLATFORM CONTROLS ============ -->
+<section>
+  <div class="wrap">
+    <h2>Human-in-the-loop &amp; platform controls</h2>
+    <p class="sub">Companion frameworks and platform docs for human approval, guardrails, and oversight — where "high-risk actions need a human" actually gets built.</p>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="https://looprails.dev/">LoopRails</a></h3>
+        <p class="d">An open, vendor-neutral human-in-the-loop framework for AI agents: which actions need review, how much oversight each needs, and how to keep approvals from becoming rubber stamps (Grade-Guard-Show-Prove, the RAIL checklist).</p>
+        <div class="chips"><span class="tag">Build-time</span><span class="tag">Run-time</span><span class="flag free">Free</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://docs.n8n.io/advanced-ai/human-in-the-loop-tools/">n8n — human-in-the-loop for AI tool calls</a></h3>
+        <p class="d">Official doc for gating an agent's tool calls behind human approval: the reviewer sees the tool and parameters, approves or denies, and the agent is told the result.</p>
+        <div class="chips"><span class="tag">Run-time</span><span class="tag">Agent</span><span class="flag free">Free</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.guardrails/">n8n — Guardrails node</a></h3>
+        <p class="d">A purpose-built node to check and sanitize LLM input and output — prompt-injection detection, text sanitization, and a custom system message.</p>
+        <div class="chips"><span class="tag">Run-time</span><span class="tag">Agent</span><span class="flag free">Free</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://docs.n8n.io/flow-logic/error-handling/">n8n — error handling &amp; error workflows</a></h3>
+        <p class="d">Error workflows, the Error Trigger node, and Stop-And-Error for deliberate failure — reliability and escalation primitives for agent workflows.</p>
+        <div class="chips"><span class="tag">Run-time</span><span class="flag free">Free</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://docs.n8n.io/user-management/rbac/">n8n — RBAC &amp; external secrets</a></h3>
+        <p class="d">Project-scoped roles over workflows and credentials, plus <a href="https://docs.n8n.io/external-secrets/">external secrets</a> from 1Password, AWS/Azure/GCP, and HashiCorp Vault.</p>
+        <div class="chips"><span class="tag">Config</span><span class="flag free">Free</span></div>
+      </div>
+      <div class="card">
+        <h3><a href="https://blog.n8n.io/best-practices-for-deploying-ai-agents-in-production/">n8n — 15 best practices for deploying AI agents in production</a></h3>
+        <p class="d">A substantive operational checklist spanning secrets, guardrails, audit logging, human-in-the-loop, escalation and timeouts, and per-node error handling.</p>
+        <div class="chips"><span class="tag">Build-time</span><span class="tag">Run-time</span><span class="tag">Config</span><span class="flag free">Free</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ============ MANAGED PLATFORMS ============ -->
 <section>
   <div class="wrap">
