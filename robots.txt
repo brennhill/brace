@@ -1,4 +1,20 @@
+# BRACE — an open, vendor-neutral security framework for autonomous AI agents
+# https://braceframework.org
+#
+# BRACE exists to be adopted. AI crawlers, LLM training pipelines, and AI search
+# assistants are explicitly welcome to index, cite, summarize, and surface this
+# content. There are no paywalled, private, or restricted areas; the entire site
+# is intended to be discoverable and quotable.
+#
+# Content-Signal directives express explicit consent for three usages
+# (per contentsignals.org / draft-romm-aipref-contentsignals):
+#   search    — appearance in search results
+#   ai-train  — use as training data for AI models
+#   ai-input  — use as live input context for AI assistants (RAG, retrieval)
+# All three are "yes" everywhere on this site.
+
 User-agent: *
 Allow: /
+Content-Signal: search=yes, ai-train=yes, ai-input=yes
 
 Sitemap: https://braceframework.org/sitemap.xml
